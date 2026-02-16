@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '/ui/screens/Artists/artist_screen.dart' show AboutArtist;
+import 'package:zuno/ui/screens/Artists/artist_screen.dart' show AboutArtist;
 import '../../navigator.dart';
 import '../../widgets/loader.dart';
 import '../../widgets/separate_tab_item_widget.dart';

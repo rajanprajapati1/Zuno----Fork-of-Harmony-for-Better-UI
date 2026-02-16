@@ -39,16 +39,25 @@ class Playlist {
   static const thumbPlaceholderUrl =
       "https://raw.githubusercontent.com/anandnet/Harmony-Music/refs/heads/main/playlist_placeholder.png";
 
-  factory Playlist.fromJson(Map<dynamic, dynamic> json) => Playlist(
-      title: json["title"],
-      playlistId: json["playlistId"] ?? json["browseId"],
-      thumbnailUrl: (json["thumbnails"][0]["url"]).isEmpty
+  factory Playlist.fromJson(Map<dynamic, dynamic> json) {
+    String? thumb;
+    try {
+      if (json["thumbnails"] != null && (json["thumbnails"] as List).isNotEmpty) {
+        thumb = json["thumbnails"][0]["url"];
+      }
+    } catch (_) {}
+    
+    return Playlist(
+      title: json["title"] ?? "Playlist",
+      playlistId: json["playlistId"] ?? json["browseId"] ?? "",
+      thumbnailUrl: (thumb == null || thumb.isEmpty)
           ? Thumbnail(thumbPlaceholderUrl).extraHigh
-          : Thumbnail(json["thumbnails"][0]["url"]).extraHigh,
+          : Thumbnail(thumb).extraHigh,
       description: json["description"] ?? "Playlist",
-      songCount: json['itemCount'],
+      songCount: json['itemCount']?.toString(),
       isPipedPlaylist: json["isPipedPlaylist"] ?? false,
       isCloudPlaylist: json["isCloudPlaylist"] ?? true);
+  }
 
   Map<String, dynamic> toJson() => {
         "title": title,

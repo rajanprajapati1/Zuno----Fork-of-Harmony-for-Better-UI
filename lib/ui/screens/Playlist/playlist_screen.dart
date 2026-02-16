@@ -5,9 +5,9 @@ import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:widget_marquee/widget_marquee.dart';
 
-import '/models/playling_from.dart';
-import '/models/thumbnail.dart';
-import '/ui/widgets/playlist_album_scroll_behaviour.dart';
+import 'package:zuno/models/playling_from.dart';
+import 'package:zuno/models/thumbnail.dart';
+import 'package:zuno/ui/widgets/playlist_album_scroll_behaviour.dart';
 import '../../../services/downloader.dart';
 import '../../navigator.dart';
 import '../../player/player_controller.dart';

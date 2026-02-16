@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:harmonymusic/ui/widgets/snackbar.dart';
+import 'package:zuno/ui/widgets/snackbar.dart';
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:file_picker/file_picker.dart';
@@ -10,14 +10,14 @@ import 'dart:convert';
 
 import '../../../utils/house_keeping.dart';
 import '../../widgets/add_to_playlist.dart';
-import '/ui/widgets/sort_widget.dart';
+import 'package:zuno/ui/widgets/sort_widget.dart';
 import '../Settings/settings_screen_controller.dart';
-import '/services/piped_service.dart';
+import 'package:zuno/services/piped_service.dart';
 import '../../../utils/helper.dart';
-import '/models/album.dart';
-import '/models/artist.dart';
-import '/models/media_Item_builder.dart';
-import '/models/playlist.dart';
+import 'package:zuno/models/album.dart';
+import 'package:zuno/models/artist.dart';
+import 'package:zuno/models/media_Item_builder.dart';
+import 'package:zuno/models/playlist.dart';
 
 class LibrarySongsController extends GetxController {
   late RxList<MediaItem> librarySongsList = RxList();
@@ -262,7 +262,7 @@ class LibraryPlaylistsController extends GetxController
           .toList())
     ];
 
-    final appPrefsBox = Hive.box("AppPrefs");
+    final appPrefsBox = Hive.box('AppPrefs');
     if (appPrefsBox.containsKey("piped")) {
       if (appPrefsBox.get("piped")['isLoggedIn']) await syncPipedPlaylist();
     }

@@ -6,17 +6,17 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:terminate_restart/terminate_restart.dart';
 
-import '/ui/screens/Search/search_screen_controller.dart';
-import '/utils/get_localization.dart';
-import '/services/downloader.dart';
-import '/services/piped_service.dart';
+import 'package:zuno/ui/screens/Search/search_screen_controller.dart';
+import 'package:zuno/utils/get_localization.dart';
+import 'package:zuno/services/downloader.dart';
+import 'package:zuno/services/piped_service.dart';
 import 'utils/app_link_controller.dart';
-import '/services/audio_handler.dart';
-import '/services/music_service.dart';
-import '/ui/home.dart';
-import '/ui/player/player_controller.dart';
+import 'package:zuno/services/audio_handler.dart';
+import 'package:zuno/services/music_service.dart';
+import 'package:zuno/ui/home.dart';
+import 'package:zuno/ui/player/player_controller.dart';
 import 'ui/screens/Settings/settings_screen_controller.dart';
-import '/ui/utils/theme_controller.dart';
+import 'package:zuno/ui/utils/theme_controller.dart';
 import 'ui/screens/Home/home_screen_controller.dart';
 import 'ui/screens/Library/library_controller.dart';
 import 'utils/system_tray.dart';
@@ -43,12 +43,12 @@ class MyApp extends StatelessWidget {
     if (!GetPlatform.isDesktop) Get.put(AppLinksController());
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     return GetMaterialApp(
-        title: 'Harmony Music',
+        title: 'Zuno',
         home: const Home(),
         debugShowCheckedModeBanner: false,
         translations: Languages(),
         locale:
-            Locale(Hive.box("AppPrefs").get('currentAppLanguageCode') ?? "en"),
+            Locale(Hive.box('AppPrefs').get('currentAppLanguageCode') ?? "en"),
         fallbackLocale: const Locale("en"),
         builder: (context, child) {
           final mQuery = MediaQuery.of(context);
@@ -116,7 +116,7 @@ initHive() async {
 }
 
 void _setAppInitPrefs() {
-  final appPrefs = Hive.box("AppPrefs");
+  final appPrefs = Hive.box('AppPrefs');
   if (appPrefs.isEmpty) {
     appPrefs.putAll({
       'themeModeType': 0,

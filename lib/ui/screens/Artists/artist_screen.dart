@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '/ui/screens/Artists/artist_screen_v2.dart';
-import '/ui/screens/Settings/settings_screen_controller.dart';
+import 'package:zuno/ui/screens/Artists/artist_screen_v2.dart';
+import 'package:zuno/ui/screens/Settings/settings_screen_controller.dart';
 import '../../widgets/animated_screen_transition.dart';
 import '../../widgets/loader.dart';
 import '../../widgets/separate_tab_item_widget.dart';
-import '/ui/player/player_controller.dart';
-import '/ui/widgets/image_widget.dart';
+import 'package:zuno/ui/player/player_controller.dart';
+import 'package:zuno/ui/widgets/image_widget.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../navigator.dart';
 import '../../widgets/snackbar.dart';

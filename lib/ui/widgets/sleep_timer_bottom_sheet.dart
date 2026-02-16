@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '/ui/player/player_controller.dart';
+import 'package:zuno/ui/player/player_controller.dart';
 import 'snackbar.dart';
 
 class SleepTimerBottomSheet extends StatelessWidget {

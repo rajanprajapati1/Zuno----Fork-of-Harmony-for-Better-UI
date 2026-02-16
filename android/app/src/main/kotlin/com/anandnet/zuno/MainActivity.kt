@@ -1,4 +1,4 @@
-package com.anandnet.harmonymusic
+package com.anandnet.zuno
 
 import com.ryanheise.audioservice.AudioServiceActivity
 

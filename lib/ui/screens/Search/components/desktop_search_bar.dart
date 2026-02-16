@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'search_item.dart';
-import '/ui/screens/Search/search_screen_controller.dart';
+import 'package:zuno/ui/screens/Search/search_screen_controller.dart';
 
 import '../../../navigator.dart';
 

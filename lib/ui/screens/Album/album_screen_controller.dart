@@ -1,10 +1,10 @@
 import 'package:audio_service/audio_service.dart' show MediaItem;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:harmonymusic/base_class/playlist_album_screen_con_base.dart';
-import 'package:harmonymusic/models/album.dart';
-import 'package:harmonymusic/models/playlist.dart';
-import 'package:harmonymusic/utils/helper.dart';
+import 'package:zuno/base_class/playlist_album_screen_con_base.dart';
+import 'package:zuno/models/album.dart';
+import 'package:zuno/models/playlist.dart';
+import 'package:zuno/utils/helper.dart';
 import 'package:hive/hive.dart';
 
 import '../../../mixins/additional_opeartion_mixin.dart';
@@ -16,7 +16,7 @@ import '../Library/library_controller.dart';
 ///
 ///Album title,image,songs
 class AlbumScreenController extends PlaylistAlbumScreenControllerBase
-    with AdditionalOpeartionMixin, GetSingleTickerProviderStateMixin {
+    with AdditionalOpeartionMixin, GetTickerProviderStateMixin {
   final album =
       Album(title: "", browseId: "", thumbnailUrl: "", artists: []).obs;
   final isOfflineAlbum = false.obs;
@@ -45,8 +45,18 @@ class AlbumScreenController extends PlaylistAlbumScreenControllerBase
         CurvedAnimation(
             parent: animationController, curve: Curves.easeOutBack));
 
-    final args = Get.arguments as (Album?, String);
-    fetchAlbumDetails(args.$1, args.$2);
+    final rawArgs = Get.arguments;
+    final Album? albumArg;
+    final String albumId;
+    if (rawArgs is List) {
+      albumArg = rawArgs[0] is Album ? rawArgs[0] as Album : null;
+      albumId = rawArgs[1] as String;
+    } else {
+      final args = rawArgs as (Album?, String);
+      albumArg = args.$1;
+      albumId = args.$2;
+    }
+    fetchAlbumDetails(albumArg, albumId);
     Future.delayed(const Duration(milliseconds: 200),
         () => Get.find<HomeScreenController>().whenHomeScreenOnTop());
   }

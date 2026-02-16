@@ -11,12 +11,12 @@ import 'package:hive/hive.dart';
 
 import '../ui/screens/Album/album_screen_controller.dart';
 import '../ui/screens/Playlist/playlist_screen_controller.dart';
-import '/services/stream_service.dart';
+import 'package:zuno/services/stream_service.dart';
 import '../ui/widgets/snackbar.dart';
-import '/services/permission_service.dart';
+import 'package:zuno/services/permission_service.dart';
 import '../ui/screens/Settings/settings_screen_controller.dart';
-import '/utils/helper.dart';
-import '/models/media_Item_builder.dart';
+import 'package:zuno/utils/helper.dart';
+import 'package:zuno/models/media_Item_builder.dart';
 import '../ui/screens/Library/library_controller.dart';
 import 'music_service.dart';
 //import '../models/thumbnail.dart' as th;

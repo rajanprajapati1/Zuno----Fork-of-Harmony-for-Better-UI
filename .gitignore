@@ -70,3 +70,7 @@ android/app/.cxx/Debug/*
 
 /android/app/.cxx
 
+
+./agent
+agent
+.agent

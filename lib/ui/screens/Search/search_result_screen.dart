@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '/ui/screens/Search/search_result_screen_v2.dart';
-import '/ui/screens/Settings/settings_screen_controller.dart';
+import 'package:zuno/ui/screens/Search/search_result_screen_v2.dart';
+import 'package:zuno/ui/screens/Settings/settings_screen_controller.dart';
 import '../../navigator.dart';
 import '../../widgets/animated_screen_transition.dart';
 import '../../widgets/loader.dart';

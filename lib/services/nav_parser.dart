@@ -3,11 +3,11 @@
 
 import 'package:audio_service/audio_service.dart';
 
-import '/models/media_Item_builder.dart';
-import '/services/utils.dart';
-import '../models/album.dart';
-import '../models/artist.dart';
-import '../models/playlist.dart';
+import 'package:zuno/models/media_Item_builder.dart';
+import 'package:zuno/services/utils.dart';
+import 'package:zuno/models/album.dart';
+import 'package:zuno/models/artist.dart';
+import 'package:zuno/models/playlist.dart';
 
 const single_column = ['contents', 'singleColumnBrowseResultsRenderer'];
 const tab_content = ['tabs', 0, 'tabRenderer', 'content'];
@@ -143,7 +143,6 @@ const musicPlaylistShelfRenderer = [
 
 List<Map<String, dynamic>> parseMixedContent(List<dynamic> rows) {
   List<Map<String, dynamic>> items = [];
-  //inspect(rows);
 
   for (var row in rows) {
     dynamic title;
@@ -167,26 +166,49 @@ List<Map<String, dynamic>> parseMixedContent(List<dynamic> rows) {
               noneIfAbsent: true, funName: "mixed1");
           if (pageType == null) {
             if (nav(data, navigation_watch_playlist_id) != null) {
-              //  content = parseWatchPlaylistHome(data);
+              try {
+                content = Playlist.fromJson({
+                  'title': nav(data, title_text),
+                  'playlistId': nav(data, navigation_watch_playlist_id),
+                  'thumbnails': nav(data, thumbnail_renderer),
+                  'description': nav(data, ['subtitle', 'runs', 0, 'text']),
+                });
+              } catch (e) {}
             } else {
-              content = parseSong(data);
+              try {
+                content = parseSong(data);
+              } catch (e) {}
             }
           } else if (pageType == "MUSIC_PAGE_TYPE_ALBUM") {
-            content = parseAlbum(data, reqAlbumObj: false);
+            try {
+              content = parseAlbum(data, reqAlbumObj: false);
+            } catch (e) {}
           } else if (pageType == "MUSIC_PAGE_TYPE_ARTIST") {
-            content = parseRelatedArtist(data);
+            try {
+              content = parseRelatedArtist(data);
+            } catch (e) {}
           } else if (pageType == "MUSIC_PAGE_TYPE_PLAYLIST") {
-            content = parsePlaylist(data);
+            try {
+              content = parsePlaylist(data);
+            } catch (e) {}
           }
         } else {
           data = nav(result, [mrlir]);
-          content = parseSongFlat(data);
+          if (data != null) {
+            try {
+              content = parseSongFlat(data);
+            } catch (e) {}
+          }
         }
 
-        contents.add(content);
+        if (content != null) {
+          contents.add(content);
+        }
       }
 
-      items.add({'title': title, 'contents': contents});
+      if (contents.isNotEmpty) {
+        items.add({'title': title, 'contents': contents});
+      }
     }
   }
   return items;

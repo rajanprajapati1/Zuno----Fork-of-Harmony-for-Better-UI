@@ -8,8 +8,8 @@ import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:terminate_restart/terminate_restart.dart';
 
-import '/ui/screens/Settings/settings_screen_controller.dart';
-import '/utils/helper.dart';
+import 'package:zuno/ui/screens/Settings/settings_screen_controller.dart';
+import 'package:zuno/utils/helper.dart';
 import '../../services/permission_service.dart';
 import 'common_dialog_widget.dart';
 

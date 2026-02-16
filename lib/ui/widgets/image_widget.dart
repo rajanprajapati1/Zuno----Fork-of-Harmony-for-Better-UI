@@ -7,7 +7,7 @@ import 'package:get/get.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../screens/Settings/settings_screen_controller.dart';
-import '/models/artist.dart';
+import 'package:zuno/models/artist.dart';
 import '../../models/album.dart';
 import '../../models/playlist.dart';
 
@@ -19,6 +19,9 @@ class ImageWidget extends StatelessWidget {
     this.album,
     this.artist,
     required this.size,
+    this.width,
+    this.height,
+    this.borderRadius,
     this.isPlayerArtImage = false,
   });
   final MediaItem? song;
@@ -27,6 +30,9 @@ class ImageWidget extends StatelessWidget {
   final bool isPlayerArtImage;
   final Artist? artist;
   final double size;
+  final double? width;
+  final double? height;
+  final BorderRadius? borderRadius;
 
   @override
   Widget build(BuildContext context) {
@@ -53,25 +59,28 @@ class ImageWidget extends StatelessWidget {
     final bool offlineAvailable =
         song != null && (song?.extras?["url"] ?? "").contains("file");
 
+    final double w = width ?? size;
+    final double h = height ?? size;
+
     return Container(
-      height: size,
-      width: size,
+      height: h,
+      width: w,
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         shape: artist != null ? BoxShape.circle : BoxShape.rectangle,
-        borderRadius: artist != null ? null : BorderRadius.circular(5),
+        borderRadius: artist != null ? null : (borderRadius ?? BorderRadius.circular(12)),
       ),
       child: offlineAvailable
           ? Image.file(
               File(
                   "${Get.find<SettingsScreenController>().supportDirPath}/thumbnails/${song!.id}.png"),
-              height: size,
-              width: size,
+              height: h,
+              width: w,
               fit: BoxFit.cover,
             )
           : CachedNetworkImage(
-              height: size,
-              width: size,
+              height: h,
+              width: w,
               memCacheHeight: (song != null && !isPlayerArtImage) ? 140 : null,
               //memCacheWidth: (song != null && !isPlayerArtImage)? 140 : null,
               //cacheKey: cacheKey,
@@ -85,7 +94,7 @@ class ImageWidget extends StatelessWidget {
                       shape:
                           artist != null ? BoxShape.circle : BoxShape.rectangle,
                       borderRadius:
-                          artist != null ? null : BorderRadius.circular(10),
+                          artist != null ? null : (borderRadius ?? BorderRadius.circular(10)),
                     ),
                     child: Image.asset(
                         "assets/icons/${song != null ? "song" : artist != null ? "artist" : "album"}.png"));
@@ -100,7 +109,7 @@ class ImageWidget extends StatelessWidget {
                       shape:
                           artist != null ? BoxShape.circle : BoxShape.rectangle,
                       borderRadius:
-                          artist != null ? null : BorderRadius.circular(10),
+                          artist != null ? null : (borderRadius ?? BorderRadius.circular(10)),
                       color: Colors.white54,
                     ),
                   ))),

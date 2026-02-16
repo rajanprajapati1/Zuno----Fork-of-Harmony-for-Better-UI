@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
-import '/ui/widgets/common_dialog_widget.dart';
+import 'package:zuno/ui/widgets/common_dialog_widget.dart';
 
 class SongInfoDialog extends StatelessWidget {
   final MediaItem song;

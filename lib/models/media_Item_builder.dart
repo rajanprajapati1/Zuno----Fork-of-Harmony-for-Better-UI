@@ -18,15 +18,22 @@ class MediaItemBuilder {
       }
     }
 
+    String? thumb;
+    try {
+      if (json["thumbnails"] != null && (json["thumbnails"] as List).isNotEmpty) {
+        thumb = json["thumbnails"][0]["url"];
+      }
+    } catch (_) {}
+
     return MediaItem(
-        id: json["videoId"],
-        title: json["title"],
+        id: json["videoId"] ?? "",
+        title: json["title"] ?? "Unknown",
         duration: json['duration'] != null
             ? Duration(seconds: json['duration'])
             : toDuration(json['length']),
         album: album != null ? album['name'] : null,
         artist: artistName,
-        artUri: Uri.parse(Thumbnail(json["thumbnails"][0]['url']).high),
+        artUri: thumb != null ? Uri.parse(Thumbnail(thumb).high) : null,
         extras: {
           'url': json['url'] ?? url,
           'length': json['length'],
@@ -34,6 +41,7 @@ class MediaItemBuilder {
           'artists': json['artists'],
           'date': json['date'],
           'trackDetails': json['trackDetails'],
+          'isFavorite': json['isFavorite'] ?? false,
           'year': json['year']
         });
   }

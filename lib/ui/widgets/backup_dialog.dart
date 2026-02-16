@@ -9,9 +9,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
-import '/ui/screens/Settings/settings_screen_controller.dart';
-import '/ui/widgets/loader.dart';
-import '/utils/helper.dart';
+import 'package:zuno/ui/screens/Settings/settings_screen_controller.dart';
+import 'package:zuno/ui/widgets/loader.dart';
+import 'package:zuno/utils/helper.dart';
 import '../../services/permission_service.dart';
 import 'common_dialog_widget.dart';
 

@@ -4,13 +4,13 @@ import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
 import '../../widgets/add_to_playlist.dart';
-import '/ui/widgets/sort_widget.dart';
+import 'package:zuno/ui/widgets/sort_widget.dart';
 import '../../../models/artist.dart';
 import '../../../utils/helper.dart';
 import '../Library/library_controller.dart';
-import '/services/music_service.dart';
-import '/ui/screens/Home/home_screen_controller.dart';
-import '/ui/screens/Settings/settings_screen_controller.dart';
+import 'package:zuno/services/music_service.dart';
+import 'package:zuno/ui/screens/Home/home_screen_controller.dart';
+import 'package:zuno/ui/screens/Settings/settings_screen_controller.dart';
 
 class ArtistScreenController extends GetxController
     with GetSingleTickerProviderStateMixin {

@@ -1,12 +1,12 @@
 import 'dart:io';
 
 import 'package:get/get.dart';
-import '/models/media_Item_builder.dart';
-import '/ui/screens/Library/library_controller.dart';
+import 'package:zuno/models/media_Item_builder.dart';
+import 'package:zuno/ui/screens/Library/library_controller.dart';
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
-import '../services/utils.dart';
-import 'helper.dart';
+import 'package:zuno/services/utils.dart';
+import 'package:zuno/utils/helper.dart';
 
 void startHouseKeeping() {
   removeExpiredSongsUrlFromDb();
@@ -21,7 +21,7 @@ Future<void> removeExpiredSongsUrlFromDb() async {
       final songUrlKey = songsUrlCacheKeysList[i];
       final streamData = songsUrlCacheBox.get(songUrlKey)[1];
       if (streamData == null ||
-          streamData.runtimeType == String ||
+          streamData is String ||
           (streamData != null && isExpired(url: streamData['url'] as String))) {
         await songsUrlCacheBox.delete(songUrlKey);
       }

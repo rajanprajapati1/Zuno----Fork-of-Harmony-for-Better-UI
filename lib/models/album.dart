@@ -35,9 +35,17 @@ class Album {
   final String? year;
   final String thumbnailUrl;
 
-  factory Album.fromJson(Map<dynamic, dynamic> json) => Album(
-      title: json["title"],
-      browseId: json["browseId"],
+  factory Album.fromJson(Map<dynamic, dynamic> json) {
+    String? thumb;
+    try {
+      if (json["thumbnails"] != null && (json["thumbnails"] as List).isNotEmpty) {
+        thumb = json["thumbnails"][0]["url"];
+      }
+    } catch (_) {}
+
+    return Album(
+      title: json["title"] ?? "Album",
+      browseId: json["browseId"] ?? "",
       artists: json["artists"] != null
           ? List<Map<dynamic, dynamic>>.from(json["artists"])
           : [
@@ -46,7 +54,8 @@ class Album {
       year: json['year'],
       audioPlaylistId: json['audioPlaylistId'],
       description: json['description'] ?? json["type"] ?? "Album",
-      thumbnailUrl: Thumbnail(json["thumbnails"][0]["url"]).medium);
+      thumbnailUrl: (thumb == null || thumb.isEmpty) ? "" : Thumbnail(thumb).medium);
+  }
 
   Map<String, dynamic> toJson() => {
         "title": title,

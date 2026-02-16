@@ -5,11 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../models/playling_from.dart';
-import '/ui/widgets/songinfo_bottom_sheet.dart';
-import '/utils/helper.dart';
+import 'package:zuno/ui/widgets/songinfo_bottom_sheet.dart';
+import 'package:zuno/utils/helper.dart';
 import '../ui/widgets/loader.dart';
-import '/services/music_service.dart';
-import '/ui/player/player_controller.dart';
+import 'package:zuno/services/music_service.dart';
+import 'package:zuno/ui/player/player_controller.dart';
 import '../ui/navigator.dart';
 import '../ui/widgets/snackbar.dart';
 

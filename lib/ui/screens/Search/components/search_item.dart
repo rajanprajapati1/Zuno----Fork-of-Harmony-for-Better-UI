@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '/ui/screens/Search/search_screen_controller.dart';
+import 'package:zuno/ui/screens/Search/search_screen_controller.dart';
 
 import '../../../navigator.dart';
 

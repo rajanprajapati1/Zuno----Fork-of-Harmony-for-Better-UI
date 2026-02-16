@@ -6,12 +6,12 @@ import 'package:dio/dio.dart';
 import 'package:get/get.dart' as getx;
 import 'package:hive/hive.dart';
 
-import '/models/album.dart';
-import '/services/utils.dart';
-import '../utils/helper.dart';
-import 'constant.dart';
-import 'continuations.dart';
-import 'nav_parser.dart';
+import 'package:zuno/models/album.dart';
+import 'package:zuno/services/utils.dart';
+import 'package:zuno/utils/helper.dart';
+import 'package:zuno/services/constant.dart';
+import 'package:zuno/services/continuations.dart';
+import 'package:zuno/services/nav_parser.dart';
 
 enum AudioQuality {
   Low,

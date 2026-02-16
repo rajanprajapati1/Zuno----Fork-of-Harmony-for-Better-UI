@@ -3,13 +3,13 @@ import 'dart:ui';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 
-import '/ui/player/components/gesture_player.dart';
-import '/ui/player/components/standard_player.dart';
-import '/ui/screens/Settings/settings_screen_controller.dart';
+import 'package:zuno/ui/player/components/gesture_player.dart';
+import 'package:zuno/ui/player/components/standard_player.dart';
+import 'package:zuno/ui/screens/Settings/settings_screen_controller.dart';
 import '../../utils/helper.dart';
 import '../widgets/snackbar.dart';
 import '../widgets/up_next_queue.dart';
-import '/ui/player/player_controller.dart';
+import 'package:zuno/ui/player/player_controller.dart';
 import '../widgets/sliding_up_panel.dart';
 
 /// Player screen

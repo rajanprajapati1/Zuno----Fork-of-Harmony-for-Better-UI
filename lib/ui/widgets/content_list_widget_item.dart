@@ -1,157 +1,252 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:audio_service/audio_service.dart';
 
 import '../navigator.dart';
 import 'image_widget.dart';
+import 'package:zuno/ui/player/player_controller.dart';
+import 'package:zuno/models/artist.dart';
+import '../../models/album.dart';
+import '../../models/playlist.dart';
 
-class ContentListItem extends StatelessWidget {
-  const ContentListItem(
-      {super.key, required this.content, this.isLibraryItem = false});
+enum ContentItemStyle { standard, wide, list, circle }
 
-  ///content will be of Type class Album or Playlist
+class ContentListItem extends StatefulWidget {
+  const ContentListItem({
+    super.key,
+    required this.content,
+    this.isLibraryItem = false,
+    this.style = ContentItemStyle.standard,
+  });
+
   final dynamic content;
   final bool isLibraryItem;
+  final ContentItemStyle style;
+
+  @override
+  State<ContentListItem> createState() => _ContentListItemState();
+}
+
+class _QuickItemStyle {
+  final double width;
+  final double height;
+  final double imageWidth;
+  final double imageHeight;
+  const _QuickItemStyle({
+    required this.width, 
+    required this.height, 
+    required this.imageWidth, 
+    required this.imageHeight
+  });
+}
+
+class _ContentListItemState extends State<ContentListItem> {
+  bool _isHovered = false;
+
+  _QuickItemStyle get _metrics {
+    switch (widget.style) {
+      case ContentItemStyle.circle:
+        return const _QuickItemStyle(width: 140, height: 185, imageWidth: 140, imageHeight: 140);
+      case ContentItemStyle.wide:
+        // Billboard style
+        return const _QuickItemStyle(width: 280, height: 280, imageWidth: 280, imageHeight: 200); 
+      case ContentItemStyle.list:
+        return const _QuickItemStyle(width: 280, height: 80, imageWidth: 60, imageHeight: 60);
+      case ContentItemStyle.standard:
+      default:
+        // Pro Album card sizing
+        return const _QuickItemStyle(width: 160, height: 260, imageWidth: 160, imageHeight: 180);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final isAlbum = content.runtimeType.toString() == "Album";
-    return InkWell(
-      splashColor: Colors.transparent,
-      highlightColor: Colors.transparent,
-      onTap: () {
-        if (isAlbum) {
-          Get.toNamed(ScreenNavigationSetup.albumScreen,
-              id: ScreenNavigationSetup.id, arguments:(content, content.browseId));
-          return;
-        }
-        Get.toNamed(ScreenNavigationSetup.playlistScreen,
-            id: ScreenNavigationSetup.id,
-            arguments: [content, content.playlistId]);
-      },
-      child: Container(
-        width: 130,
-        height: 180,
-        padding: const EdgeInsets.symmetric(horizontal: 5),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            isAlbum
-                ? ImageWidget(
-                    size: 120,
-                    album: content,
-                  )
-                : content.isCloudPlaylist ||
-                        !(content.playlistId == 'LIBRP' ||
-                            content.playlistId == 'LIBFAV' ||
-                            content.playlistId == 'SongsCache' ||
-                            content.playlistId == 'SongDownloads')
-                    ? SizedBox.square(
-                        dimension: 120,
-                        child: Stack(
-                          children: [
-                            ImageWidget(
-                              size: 120,
-                              playlist: content,
-                            ),
-                            if (content.isPipedPlaylist)
-                              Align(
-                                alignment: Alignment.bottomRight,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Container(
-                                    height: 18,
-                                    width: 18,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(5),
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .secondary,
-                                    ),
-                                    child: Center(
-                                        child: Text(
-                                      "P",
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleMedium!
-                                          .copyWith(fontSize: 14),
-                                    )),
-                                  ),
-                                ),
-                              ),
-                            if (!content.isCloudPlaylist)
-                              Align(
-                                alignment: Alignment.bottomRight,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Container(
-                                    height: 18,
-                                    width: 18,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(5),
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .secondary,
-                                    ),
-                                    child: Center(
-                                        child: Text(
-                                      "L",
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleMedium!
-                                          .copyWith(fontSize: 14),
-                                    )),
-                                  ),
-                                ),
-                              )
-                          ],
-                        ),
-                      )
-                    : Container(
-                        height: 120,
-                        width: 120,
-                        decoration: BoxDecoration(
-                            color: Theme.of(context).primaryColorLight,
-                            borderRadius: BorderRadius.circular(10)),
-                        child: Center(
-                            child: Icon(
-                          content.playlistId == 'LIBRP'
-                              ? Icons.history
-                              : content.playlistId == 'LIBFAV'
-                                  ? Icons.favorite
-                                  : content.playlistId == 'SongsCache'
-                                      ? Icons.flight
-                                      : Icons.download,
-                          color: Colors.white,
-                          size: 40,
-                        ))),
-            const SizedBox(height: 5),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    content.title,
-                    // overflow: TextOverflow.ellipsis,
-                    maxLines: 2,
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  Text(
-                    isAlbum
-                        ? isLibraryItem
-                            ? ""
-                            : "${content.artists[0]['name'] ?? ""} | ${content.year ?? ""}"
-                        : isLibraryItem
-                            ? ""
-                            : content.description ?? "",
-                    maxLines: 1,
-                    style: Theme.of(context).textTheme.titleSmall,
-                  ),
-                ],
-              ),
-            )
-          ],
+    final metrics = _metrics;
+    final isCircle = widget.style == ContentItemStyle.circle;
+    
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: AnimatedScale(
+        scale: _isHovered ? 1.02 : 1.0,
+        duration: const Duration(milliseconds: 200),
+        child: Container(
+          width: metrics.width,
+          height: metrics.height,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(isCircle ? 100 : 16),
+            color: Theme.of(context).brightness == Brightness.dark
+                ? Colors.white.withOpacity(_isHovered ? 0.12 : 0.04)
+                : Colors.black.withOpacity(_isHovered ? 0.08 : 0.03),
+          ),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(isCircle ? 100 : 16),
+            onTap: _handleTap,
+            child: widget.style == ContentItemStyle.list 
+              ? _buildListLayout(metrics)
+              : _buildCardLayout(metrics),
+          ),
         ),
       ),
+    );
+  }
+
+  void _handleTap() {
+    final isAlbum = widget.content is Album;
+    final isArtist = widget.content is Artist;
+    final isSong = widget.content is MediaItem;
+    
+    if (isAlbum) {
+      Get.toNamed(ScreenNavigationSetup.albumScreen,
+          id: ScreenNavigationSetup.id,
+          arguments: [widget.content, (widget.content as Album).browseId]);
+    } else if (isArtist) {
+      // Artist screen expects [bool isIdOnly, dynamic data]
+      Get.toNamed(ScreenNavigationSetup.artistScreen,
+          id: ScreenNavigationSetup.id, 
+          arguments: [true, (widget.content as Artist).browseId]);
+    } else if (isSong) {
+      final playerController = Get.find<PlayerController>();
+      playerController.pushSongToQueue(widget.content);
+      playerController.play();
+    } else {
+      // Playlist case
+      Get.toNamed(ScreenNavigationSetup.playlistScreen,
+          id: ScreenNavigationSetup.id,
+          arguments: [widget.content, widget.content.playlistId ?? widget.content.id]);
+    }
+  }
+
+  Widget _buildListLayout(_QuickItemStyle metrics) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      child: Row(
+        children: [
+          Hero(
+            tag: _getHeroTag(),
+            child: _buildImage(metrics.imageWidth, metrics.imageHeight, radius: 12),
+          ),
+          const SizedBox(width: 14),
+          Expanded(child: _buildTextContent(fixed: true)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCardLayout(_QuickItemStyle metrics) {
+    final isCircle = widget.style == ContentItemStyle.circle;
+    
+    return Column(
+      // CHANGED: Removed MainAxisSize.min which broke Expanded inside
+      crossAxisAlignment: isCircle ? CrossAxisAlignment.center : CrossAxisAlignment.start,
+      children: [
+        Hero(
+          tag: _getHeroTag(),
+          child: _buildImage(
+            metrics.imageWidth, 
+            metrics.imageHeight, 
+            radius: isCircle ? 100 : null
+          ),
+        ),
+        const SizedBox(height: 10),
+        // Use Expanded correctly now that parent is MainAxisSize.max
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(12, 0, 12, 10),
+            child: _buildTextContent(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _getHeroTag() {
+    if (widget.content is Album) return widget.content.browseId;
+    if (widget.content is MediaItem) return widget.content.id;
+    if (widget.content is Artist) return widget.content.browseId;
+    return widget.content.playlistId ?? widget.content.title ?? UniqueKey().toString();
+  }
+
+  Widget _buildImage(double width, double height, {double? radius}) {
+    final isCircle = widget.style == ContentItemStyle.circle;
+    
+    BorderRadius imgRadius;
+    if (isCircle) {
+      imgRadius = BorderRadius.circular(100);
+    } else if (radius != null) {
+      imgRadius = BorderRadius.circular(radius);
+    } else {
+      imgRadius = const BorderRadius.only(
+        topLeft: Radius.circular(16),
+        topRight: Radius.circular(16),
+        bottomLeft: Radius.zero,
+        bottomRight: Radius.zero,
+      );
+    }
+
+    return ImageWidget(
+      size: width,
+      width: width,
+      height: height,
+      borderRadius: imgRadius,
+      album: widget.content is Album ? widget.content : null,
+      song: widget.content is MediaItem ? widget.content : null,
+      artist: widget.content is Artist ? widget.content : null,
+      playlist: widget.content is Playlist ? widget.content : null,
+    );
+  }
+
+  Widget _buildTextContent({bool fixed = false}) {
+    final isCircle = widget.style == ContentItemStyle.circle;
+    String title = "";
+    String sub = "";
+
+    if (widget.content is Artist) {
+      title = widget.content.name;
+      sub = "Artist";
+    } else if (widget.content is Album) {
+      title = widget.content.title;
+      sub = widget.isLibraryItem ? "Album" : (widget.content.artists.isNotEmpty ? (widget.content.artists[0]['name'] ?? "Album") : "Album");
+    } else if (widget.content is MediaItem) {
+      title = widget.content.title ?? "Song";
+      sub = widget.content.artist ?? "Unknown artist";
+    } else {
+      title = widget.content.title ?? "Playlist";
+      sub = "Playlist"; // Default for library playlists
+      try {
+        if (widget.content.description != null && widget.content.description.isNotEmpty) {
+           sub = widget.content.description.replaceAll("\n", " ");
+        }
+      } catch (e) {}
+    }
+
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: fixed ? CrossAxisAlignment.start : (isCircle ? CrossAxisAlignment.center : CrossAxisAlignment.start),
+      children: [
+        Text(
+          title,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          textAlign: isCircle ? TextAlign.center : TextAlign.start,
+          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+                fontSize: 13,
+                letterSpacing: -0.2,
+              ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          sub,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          textAlign: isCircle ? TextAlign.center : TextAlign.start,
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).textTheme.bodySmall?.color?.withOpacity(0.6),
+                fontSize: 11,
+              ),
+        ),
+      ],
     );
   }
 }

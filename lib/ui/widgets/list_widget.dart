@@ -2,7 +2,7 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '/models/album.dart';
+import 'package:zuno/models/album.dart';
 import '../../models/artist.dart';
 import '../../models/playling_from.dart';
 import '../../models/playlist.dart';

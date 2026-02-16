@@ -14,20 +14,20 @@ import 'package:audio_service/audio_service.dart';
 // ignore: depend_on_referenced_packages
 import 'package:rxdart/rxdart.dart';
 
-import '/models/album.dart';
-import '../models/playlist.dart';
-import '/services/equalizer.dart';
-import '/services/stream_service.dart';
-import '/models/hm_streaming_data.dart';
-import '/ui/player/player_controller.dart';
-import '../ui/screens/Home/home_screen_controller.dart';
-import '/services/background_task.dart';
-import '/services/permission_service.dart';
-import '../utils/helper.dart';
-import '/models/media_Item_builder.dart';
-import '/services/utils.dart';
-import '../ui/screens/Settings/settings_screen_controller.dart';
-import '../ui/screens/Library/library_controller.dart';
+import 'package:zuno/models/album.dart';
+import 'package:zuno/models/playlist.dart';
+import 'package:zuno/services/equalizer.dart';
+import 'package:zuno/services/stream_service.dart';
+import 'package:zuno/models/hm_streaming_data.dart';
+import 'package:zuno/ui/player/player_controller.dart';
+import 'package:zuno/ui/screens/Home/home_screen_controller.dart';
+import 'package:zuno/services/background_task.dart';
+import 'package:zuno/services/permission_service.dart';
+import 'package:zuno/utils/helper.dart';
+import 'package:zuno/models/media_Item_builder.dart';
+import 'package:zuno/services/utils.dart';
+import 'package:zuno/ui/screens/Settings/settings_screen_controller.dart';
+import 'package:zuno/ui/screens/Library/library_controller.dart';
 // ignore: unused_import, implementation_imports, depend_on_referenced_packages
 import "package:media_kit/src/player/platform_player.dart" show MPVLogLevel;
 
@@ -36,8 +36,8 @@ Future<AudioHandler> initAudioService() async {
     builder: () => MyAudioHandler(),
     config: const AudioServiceConfig(
       androidNotificationIcon: 'mipmap/ic_launcher_monochrome',
-      androidNotificationChannelId: 'com.mycompany.myapp.audio',
-      androidNotificationChannelName: 'Harmony Music Notification',
+      androidNotificationChannelId: 'com.anandnet.zuno.audio',
+      androidNotificationChannelName: 'Zuno Notification',
       androidNotificationOngoing: true,
       androidStopForegroundOnPause: true,
     ),
@@ -69,7 +69,7 @@ class MyAudioHandler extends BaseAudioHandler with GetxServiceMixin {
 
   MyAudioHandler() {
     if (GetPlatform.isWindows || GetPlatform.isLinux) {
-      JustAudioMediaKit.title = 'Harmony music';
+      JustAudioMediaKit.title = 'Zuno';
       JustAudioMediaKit.protocolWhitelist = const ['http', 'https', 'file'];
     }
     _mediaLibrary = MediaLibrary();
@@ -86,13 +86,13 @@ class MyAudioHandler extends BaseAudioHandler with GetxServiceMixin {
     _notifyAudioHandlerAboutPlaybackEvents();
     _listenToPlaybackForNextSong();
     _listenForSequenceStateChanges();
-    final appPrefsBox = Hive.box("appPrefs");
+    final appPrefsBox = Hive.box('AppPrefs');
     _player
         .setSkipSilenceEnabled(appPrefsBox.get("skipSilenceEnabled") ?? false);
     loopModeEnabled = appPrefsBox.get("isLoopModeEnabled") ?? false;
     shuffleModeEnabled = appPrefsBox.get("isShuffleModeEnabled") ?? false;
     queueLoopModeEnabled =
-        Hive.box("AppPrefs").get("queueLoopModeEnabled") ?? false;
+        Hive.box('AppPrefs').get("queueLoopModeEnabled") ?? false;
     loudnessNormalizationEnabled =
         appPrefsBox.get("loudnessNormalizationEnabled") ?? false;
     _listenForDurationChanges();

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:harmonymusic/utils/helper.dart';
-import 'package:harmonymusic/utils/lang_mapping.dart';
+import 'package:zuno/utils/helper.dart';
+import 'package:zuno/utils/lang_mapping.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../widgets/common_dialog_widget.dart';
@@ -11,10 +11,10 @@ import '../../widgets/backup_dialog.dart';
 import '../../widgets/restore_dialog.dart';
 import '../Library/library_controller.dart';
 import '../../widgets/snackbar.dart';
-import '/ui/widgets/link_piped.dart';
-import '/services/music_service.dart';
-import '/ui/player/player_controller.dart';
-import '/ui/utils/theme_controller.dart';
+import 'package:zuno/ui/widgets/link_piped.dart';
+import 'package:zuno/services/music_service.dart';
+import 'package:zuno/ui/player/player_controller.dart';
+import 'package:zuno/ui/utils/theme_controller.dart';
 import 'components/custom_expansion_tile.dart';
 import 'settings_screen_controller.dart';
 
@@ -238,8 +238,10 @@ class SettingsScreen extends StatelessWidget {
                         () => DropdownButton(
                           dropdownColor: Theme.of(context).cardColor,
                           underline: const SizedBox.shrink(),
-                          value: settingsController.noOfHomeScreenContent.value,
-                          items: ([3, 5, 7, 9, 11])
+                          value: ([3, 5, 7, 9, 10, 11].contains(settingsController.noOfHomeScreenContent.value)) 
+                                  ? settingsController.noOfHomeScreenContent.value 
+                                  : 10,
+                          items: ([3, 5, 7, 9, 10, 11])
                               .map((e) =>
                                   DropdownMenuItem(value: e, child: Text("$e")))
                               .toList(),
@@ -680,7 +682,7 @@ class SettingsScreen extends StatelessWidget {
                     child: Column(
                       children: [
                         Text(
-                          "Harmony Music",
+                          "Zuno",
                           style: Theme.of(context).textTheme.titleLarge,
                         ),
                         Text(settingsController.currentVersion,

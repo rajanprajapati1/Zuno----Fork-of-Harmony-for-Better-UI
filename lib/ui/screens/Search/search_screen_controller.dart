@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
-import '/utils/app_link_controller.dart' show ProcessLink;
-import '/services/music_service.dart';
+import 'package:zuno/utils/app_link_controller.dart' show ProcessLink;
+import 'package:zuno/services/music_service.dart';
 
 class SearchScreenController extends GetxController with ProcessLink {
   final textInputController = TextEditingController();

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '/ui/widgets/modification_list.dart';
+import 'package:zuno/ui/widgets/modification_list.dart';
 import '../../../models/playlist.dart';
 import '../../widgets/piped_sync_widget.dart';
 import 'library_controller.dart';
@@ -107,8 +107,8 @@ class PlaylistNAlbumLibraryWidget extends StatelessWidget {
     final settingscrnController = Get.find<SettingsScreenController>();
     final size = MediaQuery.of(context).size;
 
-    const double itemHeight = 180;
-    const double itemWidth = 130;
+    const double itemHeight = 270;
+    const double itemWidth = 160;
     final topPadding = context.isLandscape ? 50.0 : 90.0;
 
     return Padding(

@@ -5,7 +5,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive/hive.dart';
 import 'package:palette_generator/palette_generator.dart';
-import '/utils/helper.dart';
+import 'package:zuno/utils/helper.dart';
 
 class ThemeController extends GetxController {
   final primaryColor = Colors.deepPurple[400].obs;
@@ -22,10 +22,10 @@ class ThemeController extends GetxController {
         WidgetsBinding.instance.platformDispatcher.platformBrightness;
 
     primaryColor.value =
-        Color(Hive.box('appPrefs').get("themePrimaryColor") ?? 4278199603);
+        Color(Hive.box('AppPrefs').get("themePrimaryColor") ?? 4278199603);
 
     changeThemeModeType(
-        ThemeType.values[Hive.box('appPrefs').get("themeModeType") ?? 0]);
+        ThemeType.values[Hive.box('AppPrefs').get("themeModeType") ?? 0]);
 
     _listenSystemBrightness();
 
@@ -37,7 +37,7 @@ class ThemeController extends GetxController {
     platformDispatcher.onPlatformBrightnessChanged = () {
       systemBrightness = platformDispatcher.platformBrightness;
       changeThemeModeType(
-          ThemeType.values[Hive.box('appPrefs').get("themeModeType")],
+          ThemeType.values[Hive.box('AppPrefs').get("themeModeType")],
           sysCall: true);
     };
   }
@@ -82,7 +82,7 @@ class ThemeController extends GetxController {
         textColor: textColor.value,
         titleColorSwatch: _createMaterialColor(textColor.value));
     currentSongId = songId;
-    Hive.box('appPrefs').put("themePrimaryColor", (primaryColor.value!).value);
+    Hive.box('AppPrefs').put("themePrimaryColor", (primaryColor.value!).value);
     setWindowsTitleBarColor(themedata.value!.scaffoldBackgroundColor);
   }
 
@@ -304,7 +304,7 @@ class ThemeController extends GetxController {
               cursorColor: Colors.grey[400],
               selectionColor: Colors.grey[400],
               selectionHandleColor: Colors.grey[400]),
-          dialogTheme: DialogTheme(backgroundColor: Colors.grey[200]),
+          dialogTheme: const DialogThemeData(backgroundColor: Color(0xFFEEEEEE)),
           inputDecorationTheme: const InputDecorationTheme(
               focusColor: Colors.black,
               focusedBorder: UnderlineInputBorder(

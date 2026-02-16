@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../screens/Search/search_result_screen_controller.dart';
-import '/models/album.dart';
-import '/models/artist.dart';
-// import '/models/playlist.dart';
-import '/ui/widgets/content_list_widget.dart';
+import 'package:zuno/models/album.dart';
+import 'package:zuno/models/artist.dart';
+// import 'package:zuno/models/playlist.dart';
+import 'package:zuno/ui/widgets/content_list_widget.dart';
 import 'separate_tab_item_widget.dart';
 
 class ResultWidget extends StatelessWidget {
