@@ -35,7 +35,7 @@ class Home extends StatelessWidget {
             105 + Get.mediaQuery.padding.bottom;
       } else {
         playerController.playerPanelMinHeight.value =
-            75 + Get.mediaQuery.padding.bottom;
+            64 + Get.mediaQuery.padding.bottom;
       }
     }
     return PopScope(
@@ -195,7 +195,12 @@ class Home extends StatelessWidget {
                     onSwipeUp: () {
                       playerController.queuePanelController.open();
                     },
-                    panel: const Player(),
+                    // pause the full player's animations while it is closed
+                    panel: Obx(() => TickerMode(
+                          enabled:
+                              playerController.playerPanelPosition.value > 0.01,
+                          child: const Player(),
+                        )),
                     body: const ScreenNavigation(),
                     header: !isWideScreen
                         ? InkWell(

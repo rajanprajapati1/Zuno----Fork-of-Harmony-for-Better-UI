@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../utils/brand.dart';
 import 'package:get/get.dart';
 
 import '../screens/Search/search_result_screen_controller.dart';
@@ -24,7 +25,6 @@ class ContentListWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     if (content == null) return const SizedBox.shrink();
     
-    final isAlbumContent = content is AlbumContent;
     final isSongContent = content is SongContent;
     final isArtistContent = content is ArtistContent;
     final isPlaylistContent = content is PlaylistContent;
@@ -32,27 +32,28 @@ class ContentListWidget extends StatelessWidget {
     final String title = content.title ?? "";
 
     // Calibrated heights matching the new, taller ContentListItem metrics
+    // Heights = card height from ContentListItem
     ContentItemStyle style = ContentItemStyle.standard;
-    double listHeight = 275; // Matches standard card height + breathing room
+    double listHeight = 196;
 
     if (isArtistContent) {
       style = ContentItemStyle.circle;
-      listHeight = 195;
+      listHeight = 190;
     } else if (isSongContent) {
       style = ContentItemStyle.list;
-      listHeight = 90; 
+      listHeight = 64;
     } else if (isPlaylistContent) {
       style = ContentItemStyle.wide;
-      listHeight = 295; // Matches wide card height + breathing room
+      listHeight = 196;
     }
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 32),
+      margin: const EdgeInsets.only(bottom: 28),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildHeader(context, title),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           _buildContent(context, style, listHeight),
         ],
       ),
@@ -71,10 +72,9 @@ class ContentListWidget extends StatelessWidget {
               title,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: -0.6,
-                  ),
+              style: sectionFont(
+                size: 22,
+                color: Theme.of(context).textTheme.titleLarge?.color),
             ),
           ),
           if (!isHomeContent)
@@ -105,7 +105,7 @@ class ContentListWidget extends StatelessWidget {
       child: ListView.separated(
         controller: scrollController,
         physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 4),
         scrollDirection: Axis.horizontal,
         itemCount: list.length,
         separatorBuilder: (context, index) => const SizedBox(width: 16),

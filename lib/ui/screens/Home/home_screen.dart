@@ -1,6 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:zuno/ui/utils/brand.dart';
 import 'package:get/get.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:audio_service/audio_service.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:zuno/models/media_Item_builder.dart';
+import 'package:zuno/ui/widgets/image_widget.dart';
+import 'package:zuno/ui/widgets/now_playing_overlay.dart';
+import 'package:zuno/ui/widgets/made_by_refresh.dart';
+import 'package:zuno/ui/widgets/motion.dart';
 
 import '../Search/components/desktop_search_bar.dart';
 import 'package:zuno/ui/screens/Search/search_screen_controller.dart';
@@ -19,6 +28,7 @@ import '../../widgets/quickpickswidget.dart';
 import '../../widgets/shimmer_widgets/home_shimmer.dart';
 import 'home_screen_controller.dart';
 import '../Settings/settings_screen.dart';
+import '../Playlist/favourites_screen.dart';
 import '../Library/library_controller.dart';
 import 'package:zuno/models/quick_picks.dart';
 
@@ -89,7 +99,10 @@ class HomeScreen extends StatelessWidget {
                     ),
               //const VerticalDivider(thickness: 1, width: 2),
               Expanded(
-                child: Obx(() => AnimatedScreenTransition(
+                child: _TabSwipe(
+                    enabled:
+                        settingsScreenController.isBottomNavBarEnabled.isTrue,
+                    child: Obx(() => AnimatedScreenTransition(
                     enabled: settingsScreenController
                         .isTransitionAnimationDisabled.isFalse,
                     resverse: homeScreenController.reverseAnimationtransiton,
@@ -98,7 +111,7 @@ class HomeScreen extends StatelessWidget {
                     child: Center(
                       key: ValueKey<int>(homeScreenController.tabIndex.value),
                       child: const Body(),
-                    ))),
+                    )))),
               ),
             ],
           ),
@@ -127,8 +140,18 @@ class Body extends StatelessWidget {
         settingsScreenController.isBottomNavBarEnabled.isTrue ? 20.0 : 20.0;
     
     Widget content;
-    if (homeScreenController.tabIndex.value == 0) {
+    final tab = homeScreenController.tabIndex.value;
+    if (tab == 0) {
       content = _buildHomeTab(context, homeScreenController, topPadding);
+    } else if (settingsScreenController.isBottomNavBarEnabled.isTrue) {
+      // Bottom tabs: Home, Search, Library, Favourites, Settings
+      content = switch (tab) {
+        1 => const SearchScreen(),
+        2 => const CombinedLibrary(),
+        3 => const FavouritesScreen(),
+        4 => const SettingsScreen(isBottomNavActive: true),
+        _ => Center(child: Text("$tab")),
+      };
     } else if (homeScreenController.tabIndex.value == 1) {
       content = settingsScreenController.isBottomNavBarEnabled.isTrue
           ? const SearchScreen()
@@ -232,6 +255,8 @@ class Body extends StatelessWidget {
                     final items = homeScreenController
                             .isContentFetched.value
                         ? [
+                            if (!GetPlatform.isDesktop) const _Greeting(),
+                            if (!GetPlatform.isDesktop) const _RecentlyPlayed(),
                             Obx(() {
                               final scrollController = ScrollController();
                               homeScreenController.contentScrollControllers
@@ -271,11 +296,25 @@ class Body extends StatelessWidget {
                                 homeScreenController)
                           ]
                         : [const HomeShimmer()];
-                    return ListView.builder(
-                      padding:
-                          EdgeInsets.only(bottom: 200, top: topPadding),
+                    final list = ListView.builder(
+                      physics: const AlwaysScrollableScrollPhysics(
+                          parent: ClampingScrollPhysics()),
+                      padding: EdgeInsets.only(
+                          bottom: 200,
+                          top: GetPlatform.isDesktop
+                              ? topPadding
+                              : MediaQuery.of(context).padding.top + 4),
                       itemCount: items.length,
-                      itemBuilder: (context, index) => items[index],
+                      // sections fade/slide in, staggered from the top
+                      itemBuilder: (context, index) =>
+                          items[index].appear(index: index),
+                    );
+                    if (GetPlatform.isDesktop) return list;
+                    // pull down: "Made by ❤️ Rajan" + refresh
+                    return MadeByRefresh(
+                      onRefresh: () => homeScreenController
+                          .loadContentFromNetwork(silent: true),
+                      child: list,
                     );
                   }),
           ),
@@ -309,5 +348,173 @@ class Body extends StatelessWidget {
         })
         .whereType<Widget>()
         .toList();
+  }
+}
+
+/// Swipe left/right on a tab page to move to the next/previous bottom-nav
+/// tab. Horizontal scrollers inside (carousels, swipeable rows) win the
+/// gesture first, so they keep working.
+class _TabSwipe extends StatefulWidget {
+  const _TabSwipe({required this.enabled, required this.child});
+  final bool enabled;
+  final Widget child;
+
+  @override
+  State<_TabSwipe> createState() => _TabSwipeState();
+}
+
+class _TabSwipeState extends State<_TabSwipe> {
+  static const _tabCount = 5;
+  double _dx = 0;
+
+  void _end(DragEndDetails d) {
+    final v = d.primaryVelocity ?? 0;
+    final dx = _dx;
+    _dx = 0;
+    // needs either a flick or a clear drag distance
+    if (v.abs() < 350 && dx.abs() < 90) return;
+    final c = Get.find<HomeScreenController>();
+    final next = c.tabIndex.value + ((v != 0 ? v : dx) < 0 ? 1 : -1);
+    if (next < 0 || next >= _tabCount) return;
+    HapticFeedback.selectionClick();
+    c.onBottonBarTabSelected(next);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!widget.enabled || GetPlatform.isDesktop) return widget.child;
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onHorizontalDragStart: (_) => _dx = 0,
+      onHorizontalDragUpdate: (d) => _dx += d.delta.dx,
+      onHorizontalDragEnd: _end,
+      child: widget.child,
+    );
+  }
+}
+
+/// Home header: bell + profile actions and a big condensed "Home" title.
+class _Greeting extends StatelessWidget {
+  const _Greeting();
+
+  @override
+  Widget build(BuildContext context) {
+    final textColor =
+        Theme.of(context).textTheme.titleLarge?.color ?? Colors.white;
+    return Padding(
+      padding: const EdgeInsets.only(left: 2, bottom: 22),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              IconButton(
+                visualDensity: VisualDensity.compact,
+                tooltip: 'Notifications',
+                icon: SvgPicture.asset('assets/icons/notifications-outline.svg',
+                    width: 25,
+                    height: 25,
+                    colorFilter:
+                        ColorFilter.mode(textColor, BlendMode.srcIn)),
+                onPressed: () {},
+              ),
+              IconButton(
+                visualDensity: VisualDensity.compact,
+                tooltip: 'settings'.tr,
+                icon: SvgPicture.asset('assets/icons/person-outline.svg',
+                    width: 25,
+                    height: 25,
+                    colorFilter:
+                        ColorFilter.mode(textColor, BlendMode.srcIn)),
+                onPressed: () =>
+                    Get.find<HomeScreenController>().onBottonBarTabSelected(4),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text('home'.tr,
+              style: headerFont(color: textColor)),
+        ],
+      ),
+    );
+  }
+}
+
+/// "Recently played" row of square covers, read from the LIBRP history box.
+class _RecentlyPlayed extends StatelessWidget {
+  const _RecentlyPlayed();
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<Box>(
+      future: Hive.openBox("LIBRP"),
+      builder: (context, snap) {
+        if (!snap.hasData) return const SizedBox.shrink();
+        return ValueListenableBuilder(
+          valueListenable: snap.data!.listenable(),
+          builder: (context, Box box, _) {
+            final songs = box.values
+                .map((e) => MediaItemBuilder.fromJson(e))
+                .toList()
+                .reversed
+                .take(15)
+                .toList();
+            if (songs.isEmpty) return const SizedBox.shrink();
+            final playerController = Get.find<PlayerController>();
+            final textColor =
+                Theme.of(context).textTheme.titleLarge?.color ?? Colors.white;
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 28),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 2, bottom: 12),
+                    child: Text('Recently played',
+                        style: sectionFont(color: textColor)),
+                  ),
+                  SizedBox(
+                    height: 132,
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.only(left: 2, right: 10),
+                      itemCount: songs.length,
+                      separatorBuilder: (_, __) => const SizedBox(width: 10),
+                      itemBuilder: (context, i) => PressScale(
+                          child: InkWell(
+                        onTap: () =>
+                            playerController.pushSongToQueue(songs[i]),
+                        child: SizedBox(
+                          width: 100,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Stack(children: [
+                                ImageWidget(song: songs[i], size: 100),
+                                NowPlayingOverlay(
+                                    songId: songs[i].id, size: 100),
+                              ]),
+                              const SizedBox(height: 7),
+                              Text(songs[i].title,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                      color: textColor.withOpacity(0.75),
+                                      fontSize: 12.5,
+                                      fontWeight: FontWeight.w500)),
+                            ],
+                          ),
+                        ),
+                      )),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 }

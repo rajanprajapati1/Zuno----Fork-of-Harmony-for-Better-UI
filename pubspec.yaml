@@ -16,7 +16,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.12.2+27
+version: 2.0.0+29
 
 environment:
   sdk: ">=3.1.5 <4.0.0"
@@ -43,9 +43,12 @@ dependencies:
     sdk: flutter
   flutter_keyboard_visibility: ^6.0.0
   flutter_lyric: ^2.0.4+6
+  flutter_svg: ^2.0.10+1
   flutter_slidable: ^3.1.2
   get: ^4.7.1
   google_fonts: ^8.0.1
+  firebase_core: ^3.6.0
+  firebase_auth: ^5.3.1
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   html: ^0.15.6
@@ -77,13 +80,14 @@ dependencies:
       ref: eb505e07e11d0fe1f5c03993e707c6678428c353
   toggle_switch: ^2.1.0
   tray_manager: ^0.2.3
-  url_launcher: ^6.2.1
+  url_launcher: ^6.3.2
   widget_marquee: ^0.0.8
   window_manager: ^0.4.2
-  youtube_explode_dart:
-    git:
-      url: https://github.com/anandnet/youtube_explode_dart.git
-      ref: 1d9ec9baa806705b1d859260eeb389ec28c6b024
+  youtube_explode_dart: ^3.1.0
+  webview_flutter: ^4.13.1
+  webview_windows: ^0.4.0
+  flutter_animate: ^4.5.2
+  custom_refresh_indicator: ^4.0.2
 dev_dependencies:
 
   # The "flutter_lints" package below contains a set of recommended lints to
@@ -91,11 +95,30 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
+  flutter_launcher_icons: ^0.14.4
   flutter_lints: ^4.0.0
   flutter_test:
     sdk: flutter
   jnigen: ^0.14.0
 
+# Source images live in assets/launcher/ (generated from the Zuno logo):
+#   icon_square.png     full-bleed, used where the OS applies its own mask
+#   icon_rounded.png    rounded corners, used where no mask is applied
+#   icon_monochrome.png white Z on transparent, Android 13+ themed icons
+flutter_launcher_icons:
+  android: true
+  image_path_android: "assets/launcher/icon_rounded.png"
+  adaptive_icon_background: "assets/launcher/icon_square.png"
+  adaptive_icon_foreground: "assets/launcher/icon_square.png"
+  adaptive_icon_foreground_inset: 0
+  adaptive_icon_monochrome: "assets/launcher/icon_monochrome.png"
+  ios: true
+  image_path_ios: "assets/launcher/icon_square.png"
+  remove_alpha_ios: true
+  windows:
+    generate: true
+    image_path: "assets/launcher/icon_rounded.png"
+    icon_size: 256
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 # The following section is specific to Flutter packages.
@@ -109,6 +132,7 @@ flutter:
   assets:
     - assets/
     - assets/icons/
+    - assets/onboarding/
   #   - images/a_dot_ham.jpeg
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

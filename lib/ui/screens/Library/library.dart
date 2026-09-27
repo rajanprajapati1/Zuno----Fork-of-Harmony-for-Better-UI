@@ -182,42 +182,59 @@ class PlaylistNAlbumLibraryWidget extends StatelessWidget {
               () => (isAlbumContent
                       ? libralbumCntrller.libraryAlbums.isNotEmpty
                       : librplstCntrller.libraryPlaylists.isNotEmpty)
-                  ? LayoutBuilder(builder: (context, constraints) {
-                      //Fix for grid in mobile screen
-                      final availableWidth = constraints.maxWidth > 300 &&
-                              constraints.maxWidth < 394
-                          ? 310.0
-                          : constraints.maxWidth;
-                      int columns = (availableWidth / itemWidth).floor();
-                      return SizedBox(
-                        width: availableWidth,
-                        child: GridView.builder(
-                            physics: const BouncingScrollPhysics(),
-                            gridDelegate:
-                                SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: columns,
-                              childAspectRatio: (itemWidth / itemHeight),
-                            ),
-                            controller:
-                                ScrollController(keepScrollOffset: false),
-                            shrinkWrap: true,
-                            scrollDirection: Axis.vertical,
-                            padding:
-                                const EdgeInsets.only(bottom: 200, top: 10),
-                            itemCount: isAlbumContent
-                                ? libralbumCntrller.libraryAlbums.length
-                                : librplstCntrller.libraryPlaylists.length,
-                            itemBuilder: (context, index) => Center(
-                                  child: ContentListItem(
-                                    content: isAlbumContent
-                                        ? libralbumCntrller.libraryAlbums[index]
-                                        : librplstCntrller
-                                            .libraryPlaylists[index],
-                                    isLibraryItem: true,
-                                  ),
-                                )),
-                      );
-                    })
+                  ? isBottomNavActive
+                      // Phones: Spotify-style rows (cover + title + type)
+                      ? ListView.builder(
+                          physics: const BouncingScrollPhysics(),
+                          padding: const EdgeInsets.only(bottom: 200, top: 4),
+                          itemCount: isAlbumContent
+                              ? libralbumCntrller.libraryAlbums.length
+                              : librplstCntrller.libraryPlaylists.length,
+                          itemBuilder: (context, index) => ContentListItem(
+                            content: isAlbumContent
+                                ? libralbumCntrller.libraryAlbums[index]
+                                : librplstCntrller.libraryPlaylists[index],
+                            isLibraryItem: true,
+                            style: ContentItemStyle.list,
+                          ),
+                        )
+                      : LayoutBuilder(builder: (context, constraints) {
+                          //Fix for grid in mobile screen
+                          final availableWidth = constraints.maxWidth > 300 &&
+                                  constraints.maxWidth < 394
+                              ? 310.0
+                              : constraints.maxWidth;
+                          int columns = (availableWidth / itemWidth).floor();
+                          return SizedBox(
+                            width: availableWidth,
+                            child: GridView.builder(
+                                physics: const BouncingScrollPhysics(),
+                                gridDelegate:
+                                    SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: columns,
+                                  childAspectRatio: (itemWidth / itemHeight),
+                                ),
+                                controller:
+                                    ScrollController(keepScrollOffset: false),
+                                shrinkWrap: true,
+                                scrollDirection: Axis.vertical,
+                                padding:
+                                    const EdgeInsets.only(bottom: 200, top: 10),
+                                itemCount: isAlbumContent
+                                    ? libralbumCntrller.libraryAlbums.length
+                                    : librplstCntrller.libraryPlaylists.length,
+                                itemBuilder: (context, index) => Center(
+                                      child: ContentListItem(
+                                        content: isAlbumContent
+                                            ? libralbumCntrller
+                                                .libraryAlbums[index]
+                                            : librplstCntrller
+                                                .libraryPlaylists[index],
+                                        isLibraryItem: true,
+                                      ),
+                                    )),
+                          );
+                        })
                   : Center(
                       child: Text(
                       "noBookmarks".tr,

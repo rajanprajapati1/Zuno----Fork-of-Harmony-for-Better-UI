@@ -11,6 +11,7 @@ import 'package:hive/hive.dart';
 
 import '../ui/screens/Album/album_screen_controller.dart';
 import '../ui/screens/Playlist/playlist_screen_controller.dart';
+import 'package:zuno/services/stream_access.dart';
 import 'package:zuno/services/stream_service.dart';
 import '../ui/widgets/snackbar.dart';
 import 'package:zuno/services/permission_service.dart';
@@ -33,8 +34,16 @@ class Downloader extends GetxService {
 
   RxList<MediaItem> songQueue = <MediaItem>[].obs;
 
-  Future<bool> checkPermissionNDir() async {
+  Future<bool> checkPermissionNDir({bool automatic = false}) async {
     final settingsScreenController = Get.find<SettingsScreenController>();
+
+    // "Ask where to save": pick the folder for this download
+    if (!automatic &&
+        settingsScreenController.askDownloadLocation.isTrue &&
+        !GetPlatform.isIOS &&
+        !await settingsScreenController.setDownloadLocation()) {
+      return false;
+    }
 
     if (!settingsScreenController.isCurrentPathsupportDownDir &&
         !await PermissionService.getExtStoragePermission()) {
@@ -69,8 +78,11 @@ class Downloader extends GetxService {
     }
   }
 
-  Future<void> download(MediaItem? song, {List<MediaItem>? songList}) async {
-    if (!(await checkPermissionNDir())) return;
+  /// [automatic] downloads (e.g. auto-download of liked songs) never ask for
+  /// a folder; they use the saved download location.
+  Future<void> download(MediaItem? song,
+      {List<MediaItem>? songList, bool automatic = false}) async {
+    if (!(await checkPermissionNDir(automatic: automatic))) return;
     if (songList != null) {
       songQueue.addAll(songList);
     } else {
@@ -194,17 +206,26 @@ class Downloader extends GetxService {
         .replaceAll(invalidChar, "");
     String filePath = "$dirPath/$songTitle.$actualDownformat";
     printINFO("Downloading filePath: $filePath");
-    final totalBytes = requiredAudioStream.size;
 
-    _dio.download(
-        requiredAudioStream.url,
-        options: Options(headers: {"Range": 'bytes=0-$totalBytes'}),
-        filePath, onReceiveProgress: (count, total) {
-      if (total <= 0) return;
-      songDownloadingProgress.value = ((count / total) * 100).toInt();
-    }).then(
-      (value) async {
-        printINFO(value.data);
+    StreamAccess.download(
+      source: (url: requiredAudioStream.url, size: requiredAudioStream.size),
+      filePath: filePath,
+      refreshSource: () async {
+        // Same format as the original pick, from a freshly fetched manifest.
+        final fresh = await StreamProvider.fetch(song.id);
+        if (!fresh.playable) return null;
+        final audio = downloadingFormat == "opus"
+            ? fresh.highestBitrateOpusAudio
+            : fresh.highestBitrateMp4aAudio;
+        if (audio == null) return null;
+        requiredAudioStream = audio;
+        return (url: audio.url, size: audio.size);
+      },
+      onProgress: (received, total) {
+        songDownloadingProgress.value = ((received / total) * 100).toInt();
+      },
+    ).then(
+      (_) async {
 
         String? year;
         try {

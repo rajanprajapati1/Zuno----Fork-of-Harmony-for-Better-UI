@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:zuno/services/session_guard.dart';
 import 'package:get/get.dart';
+import 'package:hive/hive.dart';
 import 'package:zuno/utils/helper.dart';
 import 'package:zuno/utils/lang_mapping.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -17,6 +19,7 @@ import 'package:zuno/ui/player/player_controller.dart';
 import 'package:zuno/ui/utils/theme_controller.dart';
 import 'components/custom_expansion_tile.dart';
 import 'settings_screen_controller.dart';
+import '../../widgets/page_title.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key, this.isBottomNavActive = false});
@@ -29,22 +32,24 @@ class SettingsScreen extends StatelessWidget {
     final isDesktop = GetPlatform.isDesktop;
     return Padding(
       padding: isBottomNavActive
-          ? EdgeInsets.only(left: 20, top: topPadding, right: 15)
+          ? const EdgeInsets.only(right: 4)
           : EdgeInsets.only(top: topPadding, left: 5, right: 5),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              "settings".tr,
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-          ),
+          isBottomNavActive
+              ? PageTitle("settings".tr)
+              : Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    "settings".tr,
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                ),
           Expanded(
               child: ListView(
             physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.only(bottom: 200, top: 20),
+            padding: const EdgeInsets.only(bottom: 200, top: 16),
             children: [
               Obx(
                 () => settingsController.isNewVersionAvailable.value
@@ -57,7 +62,7 @@ class SettingsScreen extends StatelessWidget {
                             onTap: () {
                               launchUrl(
                                 Uri.parse(
-                                  'https://github.com/anandnet/Harmony-Music/releases/latest',
+                                  'https://github.com/rajanprajapati1/Zuno----Fork-of-Harmony-for-Better-UI/releases/latest',
                                 ),
                                 mode: LaunchMode.externalApplication,
                               );
@@ -83,6 +88,64 @@ class SettingsScreen extends StatelessWidget {
                         ),
                       )
                     : const SizedBox.shrink(),
+              ),
+              // Switch to Movies & TV: slim row with a red gradient accent
+              Padding(
+                padding: const EdgeInsets.only(bottom: 14),
+                child: Material(
+                  type: MaterialType.transparency,
+                  child: InkWell(
+                    onTap: () {
+                      Hive.box('AppPrefs').put('appMode', 'movies');
+                      Get.offAllNamed('/');
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(colors: [
+                          const Color(0xFFE50914).withOpacity(0.30),
+                          const Color(0xFFE50914).withOpacity(0.04),
+                        ]),
+                        border: const Border(
+                          left:
+                              BorderSide(color: Color(0xFFE50914), width: 3),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 40,
+                            height: 40,
+                            color: const Color(0xFFE50914),
+                            child: const Icon(Icons.movie_rounded,
+                                color: Colors.white, size: 22),
+                          ),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text("Switch to Movies & TV",
+                                    style: TextStyle(
+                                        fontSize: 15.5,
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.white)),
+                                const SizedBox(height: 2),
+                                Text("Films, series & live TV",
+                                    style: TextStyle(
+                                        fontSize: 13,
+                                        color:
+                                            Colors.white.withOpacity(0.6))),
+                              ],
+                            ),
+                          ),
+                          Icon(Icons.arrow_forward_ios_rounded,
+                              size: 15, color: Colors.white.withOpacity(0.6)),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
               ),
               CustomExpansionTile(
                 title: "personalisation".tr,
@@ -166,7 +229,9 @@ class SettingsScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                  if (!isDesktop)
+                  // Phones always use bottom tabs; only tablets can choose.
+                  if (!isDesktop &&
+                      MediaQuery.of(context).size.shortestSide >= 600)
                     ListTile(
                         contentPadding:
                             const EdgeInsets.only(left: 5, right: 10),
@@ -445,7 +510,7 @@ class SettingsScreen extends StatelessWidget {
                           onChanged: settingsController.toggleAutoOpenPlayer),
                     ),
                   ),
-                  if (!isDesktop)
+                  if (GetPlatform.isAndroid)
                     ListTile(
                       contentPadding:
                           const EdgeInsets.only(left: 5, right: 10, top: 0),
@@ -564,13 +629,24 @@ class SettingsScreen extends StatelessWidget {
                     title: Text("downloadLocation".tr),
                     subtitle: Obx(() => Text(
                         settingsController.isCurrentPathsupportDownDir
-                            ? "In App storage directory"
+                            ? "Inside the app · tap to choose a folder"
                             : settingsController.downloadLocationPath.value,
                         style: Theme.of(context).textTheme.bodyMedium)),
                     onTap: () async {
                       settingsController.setDownloadLocation();
                     },
                   ),
+                  if (!GetPlatform.isIOS)
+                    ListTile(
+                      contentPadding: const EdgeInsets.only(left: 5, right: 10),
+                      title: const Text("Ask where to save"),
+                      subtitle: Text("Choose a folder every time you download",
+                          style: Theme.of(context).textTheme.bodyMedium),
+                      trailing: Obx(() => Switch(
+                          value: settingsController.askDownloadLocation.value,
+                          onChanged:
+                              settingsController.toggleAskDownloadLocation)),
+                    ),
                   if (GetPlatform.isAndroid)
                     ListTile(
                       contentPadding: const EdgeInsets.only(left: 5, right: 10),
@@ -664,14 +740,14 @@ class SettingsScreen extends StatelessWidget {
                     contentPadding: const EdgeInsets.only(left: 5, right: 10),
                     title: Text("github".tr),
                     subtitle: Text(
-                      "${"githubDes".tr}${((Get.find<PlayerController>().playerPanelMinHeight.value) == 0 || !isBottomNavActive) ? "" : "\n\n${settingsController.currentVersion} ${"by".tr} anandnet"}",
+                      "${"githubDes".tr}${((Get.find<PlayerController>().playerPanelMinHeight.value) == 0 || !isBottomNavActive) ? "" : "\n\n${settingsController.currentVersion} ${"by".tr} Rajan"}",
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     isThreeLine: true,
                     onTap: () {
                       launchUrl(
                         Uri.parse(
-                          'https://github.com/anandnet/Harmony-Music',
+                          'https://github.com/rajanprajapati1/Zuno----Fork-of-Harmony-for-Better-UI',
                         ),
                         mode: LaunchMode.externalApplication,
                       );
@@ -691,13 +767,41 @@ class SettingsScreen extends StatelessWidget {
                     ),
                   ),
                 ],
-              )
+              ),
+              // Log out
+              Padding(
+                padding: const EdgeInsets.only(top: 24, bottom: 8),
+                child: Material(
+                  color: const Color(0xFFFF6F61).withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(14),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(14),
+                    onTap: SessionGuard.confirmLogout,
+                    child: const SizedBox(
+                      height: 54,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.logout_rounded,
+                              color: Color(0xFFFF6F61), size: 20),
+                          SizedBox(width: 10),
+                          Text('Log out',
+                              style: TextStyle(
+                                  color: Color(0xFFFF6F61),
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700)),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ],
           )),
           Padding(
             padding: const EdgeInsets.only(bottom: 20.0),
             child: Text(
-              "${settingsController.currentVersion} ${"by".tr} anandnet",
+              "${settingsController.currentVersion} ${"by".tr} Rajan",
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ),

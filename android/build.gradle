@@ -1,3 +1,13 @@
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.google.gms:google-services:4.4.3'
+    }
+}
+
 allprojects {
     repositories {
         google()
@@ -9,6 +19,21 @@ rootProject.buildDir = '../build'
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
 }
+// Some older plugins (app_links, audiotags, flutter_keyboard_visibility)
+// compile against android-31, but their AndroidX deps require compileSdk 34+.
+// Raise any plugin below 36 so the AAR metadata check passes.
+subprojects {
+    afterEvaluate { project ->
+        if (project.plugins.hasPlugin("com.android.library")) {
+            def sdk = project.android.compileSdkVersion
+            def level = sdk ? (sdk.replaceAll("[^0-9]", "") ?: "0").toInteger() : 0
+            if (level < 36) {
+                project.android.compileSdkVersion 36
+            }
+        }
+    }
+}
+
 subprojects {
     project.evaluationDependsOn(':app')
 }

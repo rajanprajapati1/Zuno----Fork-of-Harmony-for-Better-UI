@@ -25,7 +25,10 @@ class ArtistScreen extends StatelessWidget {
             ? Get.find<ArtistScreenController>(tag: tag)
             : Get.put(ArtistScreenController(), tag: tag);
     return Scaffold(
-      floatingActionButton: Obx(
+      floatingActionButton: (GetPlatform.isDesktop ||
+              Get.find<SettingsScreenController>().isBottomNavBarEnabled.value)
+          ? null
+          : Obx(
         () => Padding(
           padding: EdgeInsets.only(
               bottom: playerController.playerPanelMinHeight.value),

@@ -9,6 +9,7 @@ import '../player_controller.dart';
 import 'albumart_lyrics.dart';
 import 'backgroud_image.dart';
 import 'lyrics_switch.dart';
+import 'modern_player.dart';
 import 'player_control.dart';
 
 /// Standard player widget
@@ -22,6 +23,10 @@ class StandardPlayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Phones in portrait use the modern full-screen layout
+    if (GetPlatform.isMobile && !context.isLandscape) {
+      return const ModernPlayer();
+    }
     final size = MediaQuery.of(context).size;
     final PlayerController playerController = Get.find<PlayerController>();
 

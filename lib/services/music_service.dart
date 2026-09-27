@@ -130,6 +130,9 @@ class MusicServices extends getx.GetxService {
     }
   }
 
+  /// Mood/genre chips (Relax, Workout, ...) from the last home response
+  List<Map<String, dynamic>> _homeChips = [];
+
   // Future<List<Map<String, dynamic>>>
   Future<dynamic> getHome({int limit = 4}) async {
     final data = Map.from(_context);
@@ -140,6 +143,7 @@ class MusicServices extends getx.GetxService {
 
     final sectionList =
         nav(response.data, single_column_tab + ['sectionListRenderer']);
+    _homeChips = _parseHomeChips(sectionList);
     //inspect(sectionList);
     //print(sectionList.containsKey('continuations'));
     if (sectionList.containsKey('continuations')) {
@@ -157,6 +161,52 @@ class MusicServices extends getx.GetxService {
     }
 
     return home;
+  }
+
+  List<Map<String, dynamic>> _parseHomeChips(dynamic sectionList) {
+    final chips = nav(sectionList, ['header', 'chipCloudRenderer', 'chips']);
+    if (chips is! List) return [];
+    final List<Map<String, dynamic>> result = [];
+    for (final chip in chips) {
+      final renderer = chip is Map ? chip['chipCloudChipRenderer'] : null;
+      final title = nav(renderer, ['text', 'runs', 0, 'text']);
+      final endpoint = nav(renderer, ['navigationEndpoint', 'browseEndpoint']);
+      if (title == null || endpoint is! Map || endpoint['params'] == null) {
+        continue;
+      }
+      // podcast episodes are not playable as songs
+      if (title.toString().toLowerCase().contains('podcast')) continue;
+      result.add({
+        'title': title,
+        'browseId': endpoint['browseId'],
+        'params': endpoint['params'],
+      });
+    }
+    return result;
+  }
+
+  /// Sections behind the home mood chips (Relax, Workout, Party, ...), the
+  /// same extra shelves YouTube Music shows on its home page.
+  /// Call after [getHome]. Chips are fetched in parallel; a failing chip is
+  /// skipped so it never breaks the rest.
+  Future<List<Map<String, dynamic>>> getHomeMoodSections(
+      {int maxChips = 10}) async {
+    final chips = _homeChips.take(maxChips).toList();
+    final chipSections = await Future.wait(chips.map((chip) async {
+      try {
+        final data = Map.from(_context);
+        data['browseId'] = chip['browseId'];
+        data['params'] = chip['params'];
+        final response = await _sendRequest("browse", data);
+        final rows = nav(response.data, single_column_tab + section_list);
+        if (rows is! List) return <Map<String, dynamic>>[];
+        return parseMixedContent(rows);
+      } catch (e) {
+        printERROR("Mood section '${chip['title']}' failed: $e");
+        return <Map<String, dynamic>>[];
+      }
+    }));
+    return chipSections.expand((e) => e).toList();
   }
 
   Future<List<Map<String, dynamic>>> getCharts(String catogory,
@@ -274,18 +324,18 @@ class MusicServices extends getx.GetxService {
       }
 
       results.addAll(nav(watchNextRenderer, [
-        ...tab_content,
-        'musicQueueRenderer',
-        'content',
-        'playlistPanelRenderer'
-      ]));
-      playlist = results['contents']
+            ...tab_content,
+            'musicQueueRenderer',
+            'content',
+            'playlistPanelRenderer'
+          ]) ??
+          {});
+      final contents = (results['contents'] as List?) ?? [];
+      playlist = contents
           .map((content) => nav(content,
               ['playlistPanelVideoRenderer', ...navigation_playlist_id]))
-          .where((e) => e != null)
-          .toList()
-          .first;
-      tracks.addAll(parseWatchPlaylist(results['contents']));
+          .firstWhere((e) => e != null, orElse: () => null);
+      tracks.addAll(parseWatchPlaylist(contents));
     }
 
     dynamic additionalParamsForNext;
@@ -656,6 +706,26 @@ class MusicServices extends getx.GetxService {
 
     if (results.length == 1 && results[0]['itemSectionRenderer'] != null) {
       return searchResults;
+    }
+
+    // Unfiltered search no longer groups results in musicShelfRenderers;
+    // each item comes in its own itemSectionRenderer. Merge them into a
+    // single shelf so they are parsed like before.
+    if (filter == null) {
+      final looseItems = [
+        for (final res in results)
+          if (res['itemSectionRenderer'] != null)
+            ...((res['itemSectionRenderer']['contents'] as List?) ?? [])
+                .where((e) => e['musicResponsiveListItemRenderer'] != null)
+      ];
+      if (looseItems.isNotEmpty) {
+        results = [
+          ...results.where((res) => res['itemSectionRenderer'] == null),
+          {
+            'musicShelfRenderer': {'contents': looseItems}
+          }
+        ];
+      }
     }
 
     String? type;

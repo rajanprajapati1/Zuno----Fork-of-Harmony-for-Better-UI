@@ -17,6 +17,8 @@ class SearchResultScreenController extends GetxController
   final musicServices = Get.find<MusicServices>();
   final queryString = ''.obs;
   final railItems = <String>[].obs;
+  /// Playlists shown in the "Featuring" row of the All tab
+  final playlistPreview = <dynamic>[].obs;
   final railitemHeight = Get.size.height.obs;
   final additionalParamNext = {};
   bool continuationInProgress = false;
@@ -139,6 +141,27 @@ class SearchResultScreenController extends GetxController
         });
       }
       isResultContentFetced.value = true;
+      _prefetchPlaylists();
+    }
+  }
+
+  /// Playlists are not part of the top results, so fetch a few separately.
+  Future<void> _prefetchPlaylists() async {
+    for (final key in ["Featured playlists", "Community playlists"]) {
+      if (!railItems.contains(key)) continue;
+      try {
+        final x = await musicServices.search(queryString.value,
+            filter: key.replaceAll(" ", "_").toLowerCase(),
+            limit: 10,
+            filterParams: resultContent['searchEndpoint'][key]);
+        final items = (x[key] as List?) ?? const [];
+        if (items.isNotEmpty) {
+          playlistPreview.value = items;
+          return;
+        }
+      } catch (e) {
+        printERROR("playlist preview: $e");
+      }
     }
   }
 

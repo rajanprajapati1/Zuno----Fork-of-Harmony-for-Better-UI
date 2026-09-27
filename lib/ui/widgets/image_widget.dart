@@ -68,7 +68,7 @@ class ImageWidget extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         shape: artist != null ? BoxShape.circle : BoxShape.rectangle,
-        borderRadius: artist != null ? null : (borderRadius ?? BorderRadius.circular(12)),
+        borderRadius: artist != null ? null : (borderRadius ?? BorderRadius.zero),
       ),
       child: offlineAvailable
           ? Image.file(
@@ -94,7 +94,7 @@ class ImageWidget extends StatelessWidget {
                       shape:
                           artist != null ? BoxShape.circle : BoxShape.rectangle,
                       borderRadius:
-                          artist != null ? null : (borderRadius ?? BorderRadius.circular(10)),
+                          artist != null ? null : (borderRadius ?? BorderRadius.zero),
                     ),
                     child: Image.asset(
                         "assets/icons/${song != null ? "song" : artist != null ? "artist" : "album"}.png"));
@@ -109,7 +109,7 @@ class ImageWidget extends StatelessWidget {
                       shape:
                           artist != null ? BoxShape.circle : BoxShape.rectangle,
                       borderRadius:
-                          artist != null ? null : (borderRadius ?? BorderRadius.circular(10)),
+                          artist != null ? null : (borderRadius ?? BorderRadius.zero),
                       color: Colors.white54,
                     ),
                   ))),

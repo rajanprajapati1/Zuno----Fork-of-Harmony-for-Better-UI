@@ -17,6 +17,7 @@ import 'package:rxdart/rxdart.dart';
 import 'package:zuno/models/album.dart';
 import 'package:zuno/models/playlist.dart';
 import 'package:zuno/services/equalizer.dart';
+import 'package:zuno/services/stream_access.dart';
 import 'package:zuno/services/stream_service.dart';
 import 'package:zuno/models/hm_streaming_data.dart';
 import 'package:zuno/ui/player/player_controller.dart';
@@ -35,7 +36,9 @@ Future<AudioHandler> initAudioService() async {
   return await AudioService.init(
     builder: () => MyAudioHandler(),
     config: const AudioServiceConfig(
-      androidNotificationIcon: 'mipmap/ic_launcher_monochrome',
+      // White Z silhouette. Referenced only from Dart, so it is listed in
+      // android/app/src/main/res/raw/keep.xml to survive resource shrinking.
+      androidNotificationIcon: 'drawable/ic_launcher_monochrome',
       androidNotificationChannelId: 'com.anandnet.zuno.audio',
       androidNotificationChannelName: 'Zuno Notification',
       androidNotificationOngoing: true,
@@ -74,6 +77,9 @@ class MyAudioHandler extends BaseAudioHandler with GetxServiceMixin {
     }
     _mediaLibrary = MediaLibrary();
     _player = AudioPlayer(
+        // Send stream headers (User-Agent) directly from the platform player
+        // instead of just_audio's localhost proxy, which fails on googlevideo.
+        useProxyForRequestHeaders: false,
         audioLoadConfiguration: const AudioLoadConfiguration(
             androidLoadControl: AndroidLoadControl(
       minBufferDuration: Duration(seconds: 50),
@@ -168,31 +174,50 @@ class MyAudioHandler extends BaseAudioHandler with GetxServiceMixin {
         printERROR('Error message: ${e.message}');
       } else {
         printERROR('An error occurred: $e');
-        Duration curPos = _player.position;
-        await _player.stop();
+      }
+      Duration curPos = _player.position;
+      await _player.stop();
 
-        if (isPlayingUsingLockCachingSource &&
-            e.toString().contains("Connection closed while receiving data")) {
-          await _player.seek(curPos, index: 0);
-          await _player.play();
-          return;
-        }
-
-        //Workaround when 403 error encountered
-        // customAction("playByIndex", {'index': currentIndex, 'newUrl': true})
-        //     .whenComplete(() async {
-        //   await _player.stop();
-        //   if (currentSongUrl == null) {
-        //     networkErrorPause = true;
-        //   } else {
-        //     _player.play();
-        //   }
-        // });
-        customAction("playByIndex", {'index': currentIndex, 'newUrl': true});
+      if (isPlayingUsingLockCachingSource &&
+          e.toString().contains("Connection closed while receiving data")) {
         await _player.seek(curPos, index: 0);
+        await _player.play();
+        return;
+      }
+
+      // Usually a stale/rejected stream url (403): retry with a fresh url,
+      // but give up after a couple of attempts so a broken song can't loop.
+      final songId = mediaItem.value?.id;
+      final now = DateTime.now();
+      if (songId != _lastErrorSongId ||
+          now.difference(_lastErrorTime) > const Duration(minutes: 1)) {
+        _errorRetries = 0;
+      }
+      _lastErrorSongId = songId;
+      _lastErrorTime = now;
+      if (_errorRetries >= _maxErrorRetries) {
+        printERROR("Playback failed after $_maxErrorRetries retries ($songId)");
+        return;
+      }
+      _errorRetries++;
+      // Not awaited: playByIndex awaits play(), which only completes when
+      // playback stops. Resume position once the new source is ready.
+      customAction("playByIndex", {'index': currentIndex, 'newUrl': true});
+      if (curPos > Duration.zero) {
+        try {
+          await _player.processingStateStream
+              .firstWhere((s) => s == ProcessingState.ready)
+              .timeout(const Duration(seconds: 30));
+          await _player.seek(curPos, index: 0);
+        } catch (_) {}
       }
     });
   }
+
+  static const _maxErrorRetries = 2;
+  int _errorRetries = 0;
+  String? _lastErrorSongId;
+  DateTime _lastErrorTime = DateTime.fromMillisecondsSinceEpoch(0);
 
   void _listenToPlaybackForNextSong() {
     final playerDurationOffset = GetPlatform.isWindows
@@ -278,6 +303,7 @@ class MyAudioHandler extends BaseAudioHandler with GetxServiceMixin {
 
   AudioSource _createAudioSource(MediaItem mediaItem) {
     final url = mediaItem.extras!['url'] as String;
+    final headers = StreamAccess.headersFor(url);
     if (url.contains('/cache') ||
         (Get.find<SettingsScreenController>().cacheSongs.isTrue &&
             url.contains("http"))) {
@@ -285,6 +311,7 @@ class MyAudioHandler extends BaseAudioHandler with GetxServiceMixin {
       isPlayingUsingLockCachingSource = true;
       return LockCachingAudioSource(
         Uri.parse(url),
+        headers: headers,
         cacheFile: File("$_cacheDir/cachedSongs/${mediaItem.id}.mp3"),
         tag: mediaItem,
       );
@@ -294,6 +321,7 @@ class MyAudioHandler extends BaseAudioHandler with GetxServiceMixin {
     isPlayingUsingLockCachingSource = false;
     return AudioSource.uri(
       Uri.tryParse(url)!,
+      headers: headers,
       tag: mediaItem,
     );
   }
@@ -846,8 +874,18 @@ class MyAudioHandler extends BaseAudioHandler with GetxServiceMixin {
         final streamInfoJson = songsUrlCacheBox.get(songId);
         if (streamInfoJson.runtimeType.toString().contains("Map") &&
             !isExpired(url: (streamInfoJson['lowQualityAudio']['url']))) {
-          printINFO("Got cached Url ($songId)");
-          streamInfo = HMStreamingData.fromJson(streamInfoJson);
+          final cached = HMStreamingData.fromJson(streamInfoJson)
+            ..setQualityIndex(qualityIndex as int);
+          // Cached urls can go stale before they expire; verify first.
+          final audio = cached.audio;
+          if (audio != null &&
+              await StreamAccess.isAccessible(audio.url, size: audio.size)) {
+            printINFO("Got cached Url ($songId)");
+            streamInfo = cached;
+          } else {
+            printINFO("Cached Url is stale ($songId), fetching a new one");
+            songsUrlCacheBox.delete(songId);
+          }
         }
       }
 

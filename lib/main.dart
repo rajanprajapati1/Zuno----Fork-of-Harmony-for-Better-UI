@@ -1,5 +1,6 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
+import 'package:zuno/services/session_guard.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -13,7 +14,9 @@ import 'package:zuno/services/piped_service.dart';
 import 'utils/app_link_controller.dart';
 import 'package:zuno/services/audio_handler.dart';
 import 'package:zuno/services/music_service.dart';
-import 'package:zuno/ui/home.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:zuno/ui/app_gate.dart';
+import 'package:zuno/utils/helper.dart';
 import 'package:zuno/ui/player/player_controller.dart';
 import 'ui/screens/Settings/settings_screen_controller.dart';
 import 'package:zuno/ui/utils/theme_controller.dart';
@@ -24,6 +27,7 @@ import 'utils/update_check_flag_file.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await _initFirebase();
   await initHive();
   _setAppInitPrefs();
   startApplicationServices();
@@ -32,6 +36,7 @@ Future<void> main() async {
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   TerminateRestart.instance.initialize();
   runApp(const MyApp());
+  SessionGuard.start();
 }
 
 class MyApp extends StatelessWidget {
@@ -44,7 +49,8 @@ class MyApp extends StatelessWidget {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     return GetMaterialApp(
         title: 'Zuno',
-        home: const Home(),
+        initialRoute: '/',
+        getPages: [GetPage(name: '/', page: () => const AppGate())],
         debugShowCheckedModeBanner: false,
         translations: Languages(),
         locale:
@@ -99,6 +105,18 @@ Future<void> startApplicationServices() async {
   }
 }
 
+/// Firebase Auth backs the login screen. Android reads google-services.json
+/// and iOS GoogleService-Info.plist; other platforms have no config, so the
+/// app still starts (only the demo login works there).
+Future<void> _initFirebase() async {
+  if (!GetPlatform.isAndroid && !GetPlatform.isIOS) return;
+  try {
+    await Firebase.initializeApp();
+  } catch (e) {
+    printERROR("Firebase init failed: $e");
+  }
+}
+
 initHive() async {
   String applicationDataDirectoryPath;
   if (GetPlatform.isDesktop) {
@@ -136,6 +154,7 @@ class LifecycleHandler extends WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     if (state == AppLifecycleState.resumed) {
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+      SessionGuard.verify();
     } else if (state == AppLifecycleState.detached) {
       await Get.find<AudioHandler>().customAction("saveSession");
     }

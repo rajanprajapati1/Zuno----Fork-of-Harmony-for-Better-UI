@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'motion.dart';
 import 'package:get/get.dart';
 import 'package:audio_service/audio_service.dart';
 
@@ -46,16 +47,13 @@ class _ContentListItemState extends State<ContentListItem> {
   _QuickItemStyle get _metrics {
     switch (widget.style) {
       case ContentItemStyle.circle:
-        return const _QuickItemStyle(width: 140, height: 185, imageWidth: 140, imageHeight: 140);
-      case ContentItemStyle.wide:
-        // Billboard style
-        return const _QuickItemStyle(width: 280, height: 280, imageWidth: 280, imageHeight: 200); 
+        return const _QuickItemStyle(width: 140, height: 190, imageWidth: 140, imageHeight: 140);
       case ContentItemStyle.list:
-        return const _QuickItemStyle(width: 280, height: 80, imageWidth: 60, imageHeight: 60);
+        return const _QuickItemStyle(width: 280, height: 64, imageWidth: 52, imageHeight: 52);
+      case ContentItemStyle.wide:
       case ContentItemStyle.standard:
-      default:
-        // Pro Album card sizing
-        return const _QuickItemStyle(width: 160, height: 260, imageWidth: 160, imageHeight: 180);
+        // Square cover with text underneath, no card background
+        return const _QuickItemStyle(width: 140, height: 196, imageWidth: 140, imageHeight: 140);
     }
   }
 
@@ -70,22 +68,16 @@ class _ContentListItemState extends State<ContentListItem> {
       child: AnimatedScale(
         scale: _isHovered ? 1.02 : 1.0,
         duration: const Duration(milliseconds: 200),
-        child: Container(
+        child: SizedBox(
           width: metrics.width,
           height: metrics.height,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(isCircle ? 100 : 16),
-            color: Theme.of(context).brightness == Brightness.dark
-                ? Colors.white.withOpacity(_isHovered ? 0.12 : 0.04)
-                : Colors.black.withOpacity(_isHovered ? 0.08 : 0.03),
-          ),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(isCircle ? 100 : 16),
+          child: PressScale(
+            child: InkWell(
             onTap: _handleTap,
             child: widget.style == ContentItemStyle.list 
               ? _buildListLayout(metrics)
               : _buildCardLayout(metrics),
-          ),
+          )),
         ),
       ),
     );
@@ -124,7 +116,7 @@ class _ContentListItemState extends State<ContentListItem> {
         children: [
           Hero(
             tag: _getHeroTag(),
-            child: _buildImage(metrics.imageWidth, metrics.imageHeight, radius: 12),
+            child: _buildImage(metrics.imageWidth, metrics.imageHeight),
           ),
           const SizedBox(width: 14),
           Expanded(child: _buildTextContent(fixed: true)),
@@ -148,14 +140,8 @@ class _ContentListItemState extends State<ContentListItem> {
             radius: isCircle ? 100 : null
           ),
         ),
-        const SizedBox(height: 10),
-        // Use Expanded correctly now that parent is MainAxisSize.max
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(12, 0, 12, 10),
-            child: _buildTextContent(),
-          ),
-        ),
+        const SizedBox(height: 8),
+        Expanded(child: _buildTextContent()),
       ],
     );
   }
@@ -176,12 +162,7 @@ class _ContentListItemState extends State<ContentListItem> {
     } else if (radius != null) {
       imgRadius = BorderRadius.circular(radius);
     } else {
-      imgRadius = const BorderRadius.only(
-        topLeft: Radius.circular(16),
-        topRight: Radius.circular(16),
-        bottomLeft: Radius.zero,
-        bottomRight: Radius.zero,
-      );
+      imgRadius = BorderRadius.zero;
     }
 
     return ImageWidget(
@@ -220,8 +201,9 @@ class _ContentListItemState extends State<ContentListItem> {
       } catch (e) {}
     }
 
+    final fg = Theme.of(context).textTheme.titleMedium?.color ?? Colors.white;
     return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: fixed ? MainAxisAlignment.center : MainAxisAlignment.start,
       crossAxisAlignment: fixed ? CrossAxisAlignment.start : (isCircle ? CrossAxisAlignment.center : CrossAxisAlignment.start),
       children: [
         Text(
@@ -229,22 +211,23 @@ class _ContentListItemState extends State<ContentListItem> {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           textAlign: isCircle ? TextAlign.center : TextAlign.start,
-          style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-                fontSize: 13,
-                letterSpacing: -0.2,
-              ),
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 14.5,
+            letterSpacing: -0.2,
+            color: fg,
+          ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 2),
         Text(
           sub,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           textAlign: isCircle ? TextAlign.center : TextAlign.start,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).textTheme.bodySmall?.color?.withOpacity(0.6),
-                fontSize: 11,
-              ),
+          style: TextStyle(
+            color: fg.withOpacity(0.6),
+            fontSize: 12.5,
+          ),
         ),
       ],
     );

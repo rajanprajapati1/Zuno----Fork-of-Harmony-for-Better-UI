@@ -38,6 +38,9 @@ class SettingsScreenController extends GetxController {
   final stopPlyabackOnSwipeAway = false.obs;
   final currentAppLanguageCode = "en".obs;
   final downloadLocationPath = "".obs;
+
+  /// Ask for a folder every time a download starts.
+  final askDownloadLocation = false.obs;
   final exportLocationPath = "".obs;
   final downloadingFormat = "".obs;
   final autoDownloadFavoriteSongEnabled = false.obs;
@@ -55,6 +58,14 @@ class SettingsScreenController extends GetxController {
     if (updateCheckFlag) _checkNewVersion();
     _createInAppSongDownDir();
     super.onInit();
+  }
+
+  /// True on phone-sized screens (shortest side under 600 logical pixels).
+  bool get _isPhone {
+    final views = WidgetsBinding.instance.platformDispatcher.views;
+    if (views.isEmpty) return false;
+    final view = views.first;
+    return (view.physicalSize / view.devicePixelRatio).shortestSide < 600;
   }
 
   get currentVision => currentVersion;
@@ -84,8 +95,11 @@ class SettingsScreenController extends GetxController {
         : appLang == "zh_Hans"
             ? "zh-CN"
             : appLang;
-    isBottomNavBarEnabled.value =
-        isDesktop ? false : (setBox.get("isBottomNavBarEnabled") ?? false);
+    // Phones always get bottom tabs: the side bar is a fixed 200px and takes
+    // over half of a phone screen. Tablets keep the user's choice.
+    isBottomNavBarEnabled.value = isDesktop
+        ? false
+        : _isPhone || (setBox.get("isBottomNavBarEnabled") ?? false);
     int homeLimit = setBox.get("noOfHomeScreenContent") ?? 10;
     noOfHomeScreenContent.value = homeLimit;
     isTransitionAnimationDisabled.value =
@@ -117,6 +131,7 @@ class SettingsScreenController extends GetxController {
     exportLocationPath.value =
         setBox.get("exportLocationPath") ?? "/storage/emulated/0/Music";
     downloadingFormat.value = setBox.get('downloadingFormat') ?? "m4a";
+    askDownloadLocation.value = setBox.get('askDownloadLocation') ?? false;
     discoverContentType.value = setBox.get('discoverContentType') ?? "QP";
     slidableActionEnabled.value = setBox.get('slidableActionEnabled') ?? true;
     if (setBox.containsKey("piped")) {
@@ -164,7 +179,7 @@ class SettingsScreenController extends GetxController {
     final homeScrCon = Get.find<HomeScreenController>();
     final playerCon = Get.find<PlayerController>();
     if (val) {
-      homeScrCon.onSideBarTabSelected(3);
+      homeScrCon.onSideBarTabSelected(4);
       isBottomNavBarEnabled.value = true;
     } else {
       isBottomNavBarEnabled.value = false;
@@ -172,7 +187,7 @@ class SettingsScreenController extends GetxController {
     }
     if (!Get.find<PlayerController>().initFlagForPlayer) {
       playerCon.playerPanelMinHeight.value =
-          val ? 75.0 : 75.0 + Get.mediaQuery.viewPadding.bottom;
+          val ? 64.0 : 64.0 + Get.mediaQuery.viewPadding.bottom;
     }
     setBox.put("isBottomNavBarEnabled", val);
   }
@@ -202,19 +217,40 @@ class SettingsScreenController extends GetxController {
     exportLocationPath.value = pickedFolderPath;
   }
 
-  Future<void> setDownloadLocation() async {
+  /// Lets the user pick any folder for downloads. Returns true when a
+  /// writable folder was chosen and saved.
+  Future<bool> setDownloadLocation() async {
     if (!await PermissionService.getExtStoragePermission()) {
-      return;
+      return false;
     }
 
     final String? pickedFolderPath = await FilePicker.platform
         .getDirectoryPath(dialogTitle: "Select downloads folder");
     if (pickedFolderPath == '/' || pickedFolderPath == null) {
-      return;
+      return false;
+    }
+
+    // make sure we can actually write there before saving it
+    try {
+      final probe = File("$pickedFolderPath/.zuno_write_test");
+      await probe.writeAsString("ok");
+      await probe.delete();
+    } catch (_) {
+      Get.snackbar("Can't save here",
+          "Zuno can't write to that folder. Pick another one, like Music or Download.",
+          snackPosition: SnackPosition.BOTTOM,
+          margin: const EdgeInsets.all(12));
+      return false;
     }
 
     setBox.put("downloadLocationPath", pickedFolderPath);
     downloadLocationPath.value = pickedFolderPath;
+    return true;
+  }
+
+  void toggleAskDownloadLocation(bool val) {
+    setBox.put('askDownloadLocation', val);
+    askDownloadLocation.value = val;
   }
 
   void disableTransitionAnimation(bool val) {

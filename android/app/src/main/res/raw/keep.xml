@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Resources looked up by name at runtime (from Dart), which the release
+     resource shrinker can't see. Without this the media notification has no
+     icon and Android kills the app when playback starts. -->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@drawable/ic_launcher_monochrome,@mipmap/ic_launcher" />

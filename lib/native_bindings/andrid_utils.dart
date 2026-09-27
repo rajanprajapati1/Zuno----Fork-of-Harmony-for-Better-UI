@@ -48,7 +48,7 @@ class Equalizer extends jni$_.JObject {
         super.fromReference(reference);
 
   static final _class =
-      jni$_.JClass.forName(r'com/anandnet/Zuno/Equalizer');
+      jni$_.JClass.forName(r'com/anandnet/zuno/Equalizer');
 
   /// The type which includes information such as the signature of this class.
   static const nullableType = $Equalizer$NullableType();
@@ -181,7 +181,7 @@ final class $Equalizer$NullableType extends jni$_.JObjType<Equalizer?> {
 
   @jni$_.internal
   @core$_.override
-  String get signature => r'Lcom/anandnet/Zuno/Equalizer;';
+  String get signature => r'Lcom/anandnet/zuno/Equalizer;';
 
   @jni$_.internal
   @core$_.override
@@ -218,7 +218,7 @@ final class $Equalizer$Type extends jni$_.JObjType<Equalizer> {
 
   @jni$_.internal
   @core$_.override
-  String get signature => r'Lcom/anandnet/Zuno/Equalizer;';
+  String get signature => r'Lcom/anandnet/zuno/Equalizer;';
 
   @jni$_.internal
   @core$_.override
@@ -261,7 +261,7 @@ class SDKInt$Companion extends jni$_.JObject {
         super.fromReference(reference);
 
   static final _class =
-      jni$_.JClass.forName(r'com/anandnet/Zuno/SDKInt$Companion');
+      jni$_.JClass.forName(r'com/anandnet/zuno/SDKInt$Companion');
 
   /// The type which includes information such as the signature of this class.
   static const nullableType = $SDKInt$Companion$NullableType();
@@ -324,7 +324,7 @@ final class $SDKInt$Companion$NullableType
 
   @jni$_.internal
   @core$_.override
-  String get signature => r'Lcom/anandnet/Zuno/SDKInt$Companion;';
+  String get signature => r'Lcom/anandnet/zuno/SDKInt$Companion;';
 
   @jni$_.internal
   @core$_.override
@@ -362,7 +362,7 @@ final class $SDKInt$Companion$Type extends jni$_.JObjType<SDKInt$Companion> {
 
   @jni$_.internal
   @core$_.override
-  String get signature => r'Lcom/anandnet/Zuno/SDKInt$Companion;';
+  String get signature => r'Lcom/anandnet/zuno/SDKInt$Companion;';
 
   @jni$_.internal
   @core$_.override
@@ -406,14 +406,14 @@ class SDKInt extends jni$_.JObject {
         super.fromReference(reference);
 
   static final _class =
-      jni$_.JClass.forName(r'com/anandnet/Zuno/SDKInt');
+      jni$_.JClass.forName(r'com/anandnet/zuno/SDKInt');
 
   /// The type which includes information such as the signature of this class.
   static const nullableType = $SDKInt$NullableType();
   static const type = $SDKInt$Type();
   static final _id_Companion = _class.staticFieldId(
     r'Companion',
-    r'Lcom/anandnet/Zuno/SDKInt$Companion;',
+    r'Lcom/anandnet/zuno/SDKInt$Companion;',
   );
 
   /// from: `static public final com.anandnet.Zuno.SDKInt$Companion Companion`
@@ -452,7 +452,7 @@ final class $SDKInt$NullableType extends jni$_.JObjType<SDKInt?> {
 
   @jni$_.internal
   @core$_.override
-  String get signature => r'Lcom/anandnet/Zuno/SDKInt;';
+  String get signature => r'Lcom/anandnet/zuno/SDKInt;';
 
   @jni$_.internal
   @core$_.override
@@ -489,7 +489,7 @@ final class $SDKInt$Type extends jni$_.JObjType<SDKInt> {
 
   @jni$_.internal
   @core$_.override
-  String get signature => r'Lcom/anandnet/Zuno/SDKInt;';
+  String get signature => r'Lcom/anandnet/zuno/SDKInt;';
 
   @jni$_.internal
   @core$_.override

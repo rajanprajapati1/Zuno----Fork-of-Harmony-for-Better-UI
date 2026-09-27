@@ -259,7 +259,7 @@ class SongInfoBottomSheet extends StatelessWidget {
                         launchUrl(Uri.parse(
                             "https://youtube.com/watch?v=${song.id}"));
                       },
-                      icon: const Icon(Ionicons.logo_youtube),
+                      icon: const Icon(Ionicons.logoYoutube),
                     ),
                     IconButton(
                       splashRadius: 10,
@@ -267,7 +267,7 @@ class SongInfoBottomSheet extends StatelessWidget {
                         launchUrl(Uri.parse(
                             "https://music.youtube.com/watch?v=${song.id}"));
                       },
-                      icon: const Icon(Ionicons.play_circle),
+                      icon: const Icon(Ionicons.playCircle),
                     )
                   ],
                 ),
@@ -392,7 +392,7 @@ class SongInfoController extends GetxController
             .autoDownloadFavoriteSongEnabled
             .isTrue &&
         isCurrentSongFav.isTrue) {
-      Get.find<Downloader>().download(song);
+      Get.find<Downloader>().download(song, automatic: true);
     }
   }
 }

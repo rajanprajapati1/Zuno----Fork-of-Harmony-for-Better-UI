@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "269282963218",
+    "project_id": "session-based",
+    "storage_bucket": "session-based.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:269282963218:android:f49e90128abdea5a7a4dcb",
+        "android_client_info": {
+          "package_name": "com.anandnet.zuno"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "269282963218-nsnvivm89nfqs3349dsulbco1qvnmijc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB80GndP3s9fNba-4a2mPYzIzI75sJ7NmM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "269282963218-nsnvivm89nfqs3349dsulbco1qvnmijc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

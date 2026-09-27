@@ -1,5 +1,8 @@
 # Project-level configuration.
 cmake_minimum_required(VERSION 3.14)
+
+set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
+
 project(zuno LANGUAGES CXX)
 
 # The name of the executable created for the application. Change this to change
@@ -30,7 +33,7 @@ set(CMAKE_C_FLAGS_PROFILE "${CMAKE_C_FLAGS_RELEASE}")
 set(CMAKE_CXX_FLAGS_PROFILE "${CMAKE_CXX_FLAGS_RELEASE}")
 
 # Use Unicode for all projects.
-add_definitions(-DUNICODE -D_UNICODE)
+add_definitions(-DUNICODE -D_UNICODE -D_SILENCE_EXPERIMENTAL_COROUTINE_DEPRECATION_WARNINGS)
 
 # Compilation settings that should be applied to most targets.
 #
@@ -42,6 +45,7 @@ function(APPLY_STANDARD_SETTINGS TARGET)
   target_compile_options(${TARGET} PRIVATE /W4 /WX /wd"4100")
   target_compile_options(${TARGET} PRIVATE /EHsc)
   target_compile_definitions(${TARGET} PRIVATE "_HAS_EXCEPTIONS=0")
+  target_compile_definitions(${TARGET} PRIVATE "_SILENCE_EXPERIMENTAL_COROUTINE_DEPRECATION_WARNINGS")
   target_compile_definitions(${TARGET} PRIVATE "$<$<CONFIG:Debug>:_DEBUG>")
 endfunction()
 
@@ -52,6 +56,27 @@ add_subdirectory(${FLUTTER_MANAGED_DIR})
 # Application build; see runner/CMakeLists.txt.
 add_subdirectory("runner")
 
+
+# The jni plugin needs a JDK (find_package(JNI)). If JAVA_HOME isn't set,
+# fall back to common JDK install locations so builds work out of the box.
+if(NOT DEFINED ENV{JAVA_HOME} OR "$ENV{JAVA_HOME}" STREQUAL "")
+  # ProgramW6432 always points at the 64-bit Program Files, even when the
+  # build tools run as a 32-bit process (where ProgramFiles is "(x86)").
+  file(TO_CMAKE_PATH "$ENV{ProgramW6432}" _PF)
+  file(GLOB _JDK_CANDIDATES
+    "${_PF}/Android/Android Studio/jbr"
+    "${_PF}/Microsoft/jdk-*"
+    "${_PF}/Eclipse Adoptium/jdk-*"
+    "${_PF}/Java/jdk-*"
+    "${_PF}/Zulu/zulu-*")
+  foreach(_JDK IN LISTS _JDK_CANDIDATES)
+    if(EXISTS "${_JDK}/include/jni.h")
+      set(ENV{JAVA_HOME} "${_JDK}")
+      message(STATUS "JAVA_HOME not set; using JDK at ${_JDK}")
+      break()
+    endif()
+  endforeach()
+endif()
 
 # Generated plugin build rules, which manage building the plugins and adding
 # them to the application.
@@ -65,9 +90,7 @@ include(flutter/generated_plugins.cmake)
 set(BUILD_BUNDLE_DIR "$<TARGET_FILE_DIR:${BINARY_NAME}>")
 # Make the "install" step default, as it's required to run.
 set(CMAKE_VS_INCLUDE_INSTALL_TO_DEFAULT_BUILD 1)
-if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-  set(CMAKE_INSTALL_PREFIX "${BUILD_BUNDLE_DIR}" CACHE PATH "..." FORCE)
-endif()
+set(CMAKE_INSTALL_PREFIX "${BUILD_BUNDLE_DIR}" CACHE PATH "..." FORCE)
 
 set(INSTALL_BUNDLE_DATA_DIR "${CMAKE_INSTALL_PREFIX}/data")
 set(INSTALL_BUNDLE_LIB_DIR "${CMAKE_INSTALL_PREFIX}")

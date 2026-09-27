@@ -28,6 +28,9 @@ class PlayerController extends GetxController
   final currentQueue = <MediaItem>[].obs;
 
   final playerPaneOpacity = (1.0).obs;
+
+  /// How far the full player panel is open (0 = closed, 1 = open).
+  final playerPanelPosition = 0.0.obs;
   final isPlayerpanelTopVisible = true.obs;
   final isPanelGTHOpened = false.obs;
   final playerPanelMinHeight = 0.0.obs;
@@ -144,6 +147,7 @@ class PlayerController extends GetxController
   }
 
   void panellistener(double x) {
+    playerPanelPosition.value = x;
     if (x >= 0 && x <= 0.2) {
       playerPaneOpacity.value = 1 - (x * 5);
       isPlayerpanelTopVisible.value = true;
@@ -170,7 +174,13 @@ class PlayerController extends GetxController
     _audioHandler.playbackState.listen((playerState) {
       final isPlaying = playerState.playing;
       final processingState = playerState.processingState;
-      if (processingState == AudioProcessingState.loading) {
+      // with nothing loaded there is nothing to wait for: an idle/connecting
+      // session must not keep every loading spinner in the app spinning
+      if (currentSong.value == null &&
+          (processingState == AudioProcessingState.loading ||
+              processingState == AudioProcessingState.buffering)) {
+        buttonState.value = PlayButtonState.paused;
+      } else if (processingState == AudioProcessingState.loading) {
         buttonState.value = PlayButtonState.loading;
       } else if (processingState == AudioProcessingState.buffering) {
         buttonState.value = PlayButtonState.loading;
@@ -508,7 +518,7 @@ class PlayerController extends GetxController
     }
 
     if (initFlagForPlayer) {
-      final miniPlayerHeight = isWideScreen ? 105.0 : 75.0;
+      final miniPlayerHeight = isWideScreen ? 105.0 : 64.0;
       if (Get.find<SettingsScreenController>().isBottomNavBarEnabled.isFalse ||
           getCurrentRouteName() != '/homeScreen') {
         playerPanelMinHeight.value =
@@ -687,7 +697,7 @@ class PlayerController extends GetxController
             .autoDownloadFavoriteSongEnabled
             .isTrue &&
         isCurrentSongFav.isTrue) {
-      Get.find<Downloader>().download(currMediaItem);
+      Get.find<Downloader>().download(currMediaItem, automatic: true);
     }
   }
 

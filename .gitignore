@@ -74,3 +74,9 @@ android/app/.cxx/Debug/*
 ./agent
 agent
 .agent
+# Release signing (never commit)
+android/key.properties
+*.jks
+*.keystore
+# local duplicate
+/google-services.json

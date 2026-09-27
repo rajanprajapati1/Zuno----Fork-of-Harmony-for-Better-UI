@@ -1,6 +1,9 @@
+import 'dart:math';
+
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:zuno/ui/navigator.dart';
 import 'package:hive/hive.dart';
 
 import 'package:zuno/models/media_Item_builder.dart';
@@ -42,13 +45,13 @@ class HomeScreenController extends GetxController {
     final box = Hive.box('AppPrefs');
 
     // One-time migration: clear old cached home data to pick up new sections
-    if (box.get("homeCacheV4") == null) {
+    if (box.get("homeCacheV5") == null) {
       try {
         final homeScreenData = await Hive.openBox("homeScreenData");
         await homeScreenData.clear();
         await homeScreenData.close();
       } catch (_) {}
-      box.put("homeCacheV4", true);
+      box.put("homeCacheV5", true);
       box.delete("homeScreenDataTime");
     }
 
@@ -105,9 +108,11 @@ class HomeScreenController extends GetxController {
     networkError.value = false;
     try {
       List middleContentTemp = [];
+      // fetch every home section YouTube returns, not just the first few
       final homeContentListMap = await _musicServices.getHome(
-          limit:
-              Get.find<SettingsScreenController>().noOfHomeScreenContent.value);
+          limit: max(
+              Get.find<SettingsScreenController>().noOfHomeScreenContent.value,
+              100));
       if (contentType == "TR") {
         final index = homeContentListMap
             .indexWhere((element) => element['title'] == "Trending");
@@ -182,11 +187,35 @@ class HomeScreenController extends GetxController {
       cachedHomeScreenData(updateAll: true);
       await Hive.box('AppPrefs')
           .put("homeScreenDataTime", DateTime.now().millisecondsSinceEpoch);
+
+      // mood sections load after the main feed is already on screen
+      _appendMoodSections();
       // ignore: unused_catch_stack
     } on NetworkError catch (r, e) {
       printERROR("Home Content not loaded due to ${r.message}");
       await Future.delayed(const Duration(seconds: 1));
       networkError.value = !silent;
+    }
+  }
+
+  Future<void> _appendMoodSections() async {
+    try {
+      final moodSections = await _musicServices.getHomeMoodSections();
+      final seenTitles = {
+        quickPicks.value.title.toLowerCase(),
+        ...[...middleContent, ...fixedContent]
+            .map((e) => (e.title as String).toLowerCase()),
+      };
+      final newSections = moodSections.where((section) {
+        final title = section['title']?.toString().toLowerCase();
+        // "Quick picks" also appears inside chips; titles dedupe repeats
+        return title != null && title != 'quick picks' && seenTitles.add(title);
+      }).toList();
+      if (newSections.isEmpty) return;
+      fixedContent.addAll(_setContentList(newSections));
+      cachedHomeScreenData(updateAll: true);
+    } catch (e) {
+      printERROR("Mood sections not loaded: $e");
     }
   }
 
@@ -298,6 +327,12 @@ class HomeScreenController extends GetxController {
   }
 
   void onBottonBarTabSelected(int index) {
+    // close pages opened on top of the tabs (playlist, album, artist,
+    // library sections) so the chosen tab is actually shown; tapping the
+    // current tab also returns to its main page
+    final nav = Get.nestedKey(ScreenNavigationSetup.id)?.currentState;
+    if (nav != null && nav.canPop()) nav.popUntil((route) => route.isFirst);
+    if (tabIndex.value == index) return;
     reverseAnimationtransiton = index > tabIndex.value;
     tabIndex.value = index;
   }

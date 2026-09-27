@@ -1,4 +1,6 @@
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:zuno/ui/screens/Settings/settings_screen_controller.dart';
@@ -30,17 +32,19 @@ class MiniPlayer extends StatelessWidget {
         child: AnimatedOpacity(
           opacity: playerController.playerPaneOpacity.value,
           duration: Duration.zero,
-          child: Container(
+          child: _GlassBackground(
+            enabled: !isWideScreen || bottomNavEnabled,
             height: playerController.playerPanelMinHeight.value,
             width: size.width,
-            color: Theme.of(context).bottomSheetTheme.backgroundColor,
+            color: Theme.of(context).bottomSheetTheme.backgroundColor ??
+                Theme.of(context).canvasColor,
             child: Center(
               child: Column(
                 children: [
                   !isWideScreen || bottomNavEnabled
                       ? GetX<PlayerController>(
                           builder: (controller) => Container(
-                              height: 3,
+                              height: 2,
                               color: Theme.of(context)
                                   .progressIndicatorTheme
                                   .color,
@@ -84,8 +88,9 @@ class MiniPlayer extends StatelessWidget {
                           );
                         }),
                   Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 17.0, vertical: 7),
+                    padding: EdgeInsets.symmetric(
+                        horizontal: isWideScreen ? 17.0 : 12.0,
+                        vertical: isWideScreen ? 7 : 8),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -95,17 +100,17 @@ class MiniPlayer extends StatelessWidget {
                           children: [
                             playerController.currentSong.value != null
                                 ? ImageWidget(
-                                    size: 50,
+                                    size: isWideScreen ? 50 : 44,
                                     song: playerController.currentSong.value!,
                                   )
-                                : const SizedBox(
-                                    height: 50,
-                                    width: 50,
+                                : SizedBox(
+                                    height: isWideScreen ? 50 : 44,
+                                    width: isWideScreen ? 50 : 44,
                                   ),
                           ],
                         ),
                         const SizedBox(
-                          width: 10,
+                          width: 12,
                         ),
                         Expanded(
                           child: GestureDetector(
@@ -133,9 +138,13 @@ class MiniPlayer extends StatelessWidget {
                                               .currentSong.value!.title
                                           : "",
                                       maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                       style: Theme.of(context)
                                           .textTheme
-                                          .titleMedium,
+                                          .titleMedium
+                                          ?.copyWith(
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.w600),
                                     ),
                                   ),
                                   SizedBox(
@@ -153,7 +162,14 @@ class MiniPlayer extends StatelessWidget {
                                         maxLines: 1,
                                         style: Theme.of(context)
                                             .textTheme
-                                            .titleSmall,
+                                            .titleSmall
+                                            ?.copyWith(
+                                                fontSize: 13,
+                                                color: Theme.of(context)
+                                                    .textTheme
+                                                    .titleSmall
+                                                    ?.color
+                                                    ?.withOpacity(0.7)),
                                       ),
                                     ),
                                   ),
@@ -506,5 +522,55 @@ class MiniPlayer extends StatelessWidget {
         ),
       );
     });
+  }
+}
+
+/// Frosted-glass background for the phone mini player: blurs whatever is
+/// behind it (the player's album-art backdrop) with a translucent tint and a
+/// thin light top edge. Falls back to a solid color on wide screens.
+class _GlassBackground extends StatelessWidget {
+  const _GlassBackground({
+    required this.enabled,
+    required this.height,
+    required this.width,
+    required this.color,
+    required this.child,
+  });
+
+  final bool enabled;
+  final double height;
+  final double width;
+  final Color color;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!enabled) {
+      return Container(
+          height: height, width: width, color: color, child: child);
+    }
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
+        child: Container(
+          height: height,
+          width: width,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                color.withOpacity(0.55),
+                color.withOpacity(0.72),
+              ],
+            ),
+            border: Border(
+              top: BorderSide(color: Colors.white.withOpacity(0.08)),
+            ),
+          ),
+          child: child,
+        ),
+      ),
+    );
   }
 }

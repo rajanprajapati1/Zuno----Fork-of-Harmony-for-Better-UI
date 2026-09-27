@@ -127,7 +127,7 @@ class ListWidget extends StatelessWidget with RemoveSongFromPlaylistMixin {
           ),
           controller: sc,
           itemCount: playlists.length,
-          itemExtent: 120,
+          itemExtent: 80,
           physics: const BouncingScrollPhysics(),
           itemBuilder: (context, index) => wideListTile(context,
               playlist: playlists[index],
@@ -146,7 +146,7 @@ class ListWidget extends StatelessWidget with RemoveSongFromPlaylistMixin {
           ),
           controller: sc,
           itemCount: albums.length,
-          itemExtent: 120,
+          itemExtent: 80,
           physics: const BouncingScrollPhysics(),
           itemBuilder: (context, index) {
             String artistName = "";
@@ -154,7 +154,7 @@ class ListWidget extends StatelessWidget with RemoveSongFromPlaylistMixin {
               for (dynamic items in (albums[index].artists).sublist(1)) {
                 artistName = "${artistName + items['name']},";
               }
-            // ignore: empty_catches
+              // ignore: empty_catches
             } catch (e) {}
             artistName = artistName.length > 16
                 ? artistName.substring(0, 16)
@@ -178,32 +178,56 @@ class ListWidget extends StatelessWidget with RemoveSongFromPlaylistMixin {
       ),
       controller: sc,
       itemCount: artists.length,
-      itemExtent: 90,
+      itemExtent: 76,
       physics: isCompleteList
           ? const BouncingScrollPhysics()
           : const NeverScrollableScrollPhysics(),
-      itemBuilder: (context, index) => ListTile(
-        visualDensity: const VisualDensity(horizontal: -2, vertical: 2),
-        onTap: () {
-          Get.toNamed(ScreenNavigationSetup.artistScreen,
-              id: ScreenNavigationSetup.id, arguments: [false, artists[index]]);
-        },
-        contentPadding: const EdgeInsets.only(top: 0, bottom: 0, left: 5),
-        leading: ImageWidget(
-          size: 90,
-          artist: artists[index],
-        ),
-        title: Text(
-          artists[index].name,
-          maxLines: 1,
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
-        subtitle: Text(
-          artists[index].subscribers,
-          maxLines: 2,
-          style: Theme.of(context).textTheme.titleSmall,
-        ),
-      ),
+      itemBuilder: (context, index) {
+        final fg =
+            Theme.of(context).textTheme.titleMedium?.color ?? Colors.white;
+        return InkWell(
+          onTap: () {
+            Get.toNamed(ScreenNavigationSetup.artistScreen,
+                id: ScreenNavigationSetup.id,
+                arguments: [false, artists[index]]);
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Row(
+              children: [
+                ImageWidget(
+                  size: 58,
+                  artist: artists[index],
+                  borderRadius: BorderRadius.circular(58),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(artists[index].name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                              color: fg,
+                              fontSize: 15.5,
+                              fontWeight: FontWeight.w600)),
+                      const SizedBox(height: 3),
+                      Text(artists[index].subscribers ?? 'Artist',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                              color: fg.withOpacity(0.6), fontSize: 13)),
+                    ],
+                  ),
+                ),
+                Icon(Icons.chevron_right_rounded, color: fg.withOpacity(0.4)),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -224,49 +248,50 @@ class ListWidget extends StatelessWidget with RemoveSongFromPlaylistMixin {
               arguments: [playlist, playlist.playlistId]);
         }
       },
-      child: SizedBox(
-        height: 120,
-        child: Padding(
-          padding: const EdgeInsets.only(top: 10.0, bottom: 10),
+      child: Builder(builder: (context) {
+        final fg =
+            Theme.of(context).textTheme.titleMedium?.color ?? Colors.white;
+        final sub = [subtitle2, subtitle]
+            .map((e) => e.trim().replaceAll(RegExp(r',$'), ''))
+            .where((e) => e.isNotEmpty && e != 'NA')
+            .join(' · ');
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
           child: Row(
             children: [
-              ImageWidget(
-                size: 100,
-                album: album,
-                playlist: playlist,
-              ),
-              const SizedBox(
-                width: 20,
-              ),
+              ImageWidget(size: 64, album: album, playlist: playlist),
+              const SizedBox(width: 14),
               Expanded(
-                  child: Padding(
-                padding: const EdgeInsets.only(right: 10.0),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Text(title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                            color: fg,
+                            fontSize: 15.5,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: -0.2)),
+                    const SizedBox(height: 3),
                     Text(
-                      title,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    Text(
-                      subtitle,
-                      style: Theme.of(context).textTheme.titleSmall,
-                    ),
-                    Text(
-                      subtitle2,
-                      maxLines: 1,
-                      style: Theme.of(context).textTheme.titleSmall,
-                    ),
+                        [
+                          album != null ? 'Album' : 'Playlist',
+                          if (sub.isNotEmpty) sub
+                        ].join(' · '),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                            color: fg.withOpacity(0.6), fontSize: 13)),
                   ],
                 ),
-              ))
+              ),
+              Icon(Icons.chevron_right_rounded, color: fg.withOpacity(0.4)),
             ],
           ),
-        ),
-      ),
+        );
+      }),
     );
   }
 }

@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Harmonymusic</string>
+	<string>Zuno</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -13,7 +13,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>harmonymusic</string>
+	<string>zuno</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -56,5 +56,24 @@
 	<array>
 		<string>audio</string>
 	</array>
+	<!-- Permission prompts. Apple rejects builds that link these APIs
+	     (permission_handler mediaLibrary, file_picker, share_plus) without
+	     a usage description, even if the prompt is never shown. -->
+	<key>NSAppleMusicUsageDescription</key>
+	<string>Zuno needs access to your music library to play and import songs stored on this device.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Zuno needs access to your photos to let you pick images and files.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Zuno needs permission to save images you share from the app.</string>
+	<!-- url_launcher: allow canLaunchUrl for web links -->
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>https</string>
+		<string>http</string>
+	</array>
+	<!-- Only standard HTTPS encryption is used: skips the export compliance
+	     question on every App Store / TestFlight upload -->
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 </dict>
 </plist>
