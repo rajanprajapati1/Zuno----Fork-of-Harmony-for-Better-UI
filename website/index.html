@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Zuno · Music, without the noise</title>
-  <meta name="description" content="Zuno is a free, ad-free music app. Stream, download and discover songs with a clean, modern player." />
+  <meta name="description" content="Zuno is a free, ad-free music app for Android and Windows. iPhone coming soon." />
   <link rel="icon" href="logo.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -15,212 +15,90 @@
       --font-serif: "Instrument Serif", Georgia, serif;
       --font-sans: "Figtree", system-ui, sans-serif;
       --color-coral: #ff6f61;
-      --color-coral-deep: #d9433f;
       --color-ink: #141111;
-      --color-cream: #fff8f3;
     }
-    @keyframes bar { 0%,100% { transform: scaleY(.35) } 50% { transform: scaleY(1) } }
-    .bar { animation: bar 1.1s ease-in-out infinite; transform-origin: center; }
-    @keyframes rise { from { opacity: 0; transform: translateY(18px) } to { opacity: 1; transform: none } }
+    @keyframes rise { from { opacity: 0; transform: translateY(16px) } to { opacity: 1; transform: none } }
     .rise { animation: rise .8s cubic-bezier(.2,.7,.2,1) both; }
-    @keyframes spin-slow { to { transform: rotate(360deg) } }
-    .progress { animation: grow 14s linear infinite; }
-    @keyframes grow { from { width: 8% } to { width: 92% } }
+    @keyframes float { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-10px) } }
+    .float { animation: float 6s ease-in-out infinite; }
   </style>
 </head>
-<body class="bg-white font-sans text-ink antialiased selection:bg-coral/30">
+<body class="min-h-dvh overflow-x-hidden bg-[#fbf8f6] font-sans text-ink antialiased">
+  <!-- soft coral glow -->
+  <div class="pointer-events-none fixed right-[-10%] top-1/2 h-[80vh] w-[80vh] -translate-y-1/2 rounded-full bg-coral/25 blur-[140px]"></div>
 
-  <!-- Nav -->
-  <header class="sticky top-0 z-30 bg-white/80 backdrop-blur-md">
-    <nav class="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
-      <a href="#" class="flex items-center gap-2.5">
-        <img src="logo.png" alt="" class="h-8 w-8 rounded-lg" />
-        <span class="text-xl font-extrabold tracking-tight">Zuno</span>
-      </a>
-      <div class="hidden items-center gap-8 text-[15px] text-ink/70 md:flex">
-        <a href="#features" class="transition hover:text-ink">The app</a>
-        <a href="#player" class="transition hover:text-ink">Player</a>
-        <a href="#faq" class="transition hover:text-ink">FAQ</a>
+  <main class="relative mx-auto grid min-h-dvh max-w-6xl items-center gap-10 px-5 py-10 lg:grid-cols-[1fr_1.05fr] lg:py-0">
+
+    <!-- Left: pitch + downloads -->
+    <section class="text-center lg:text-left">
+      <div class="rise flex items-center justify-center gap-2.5 lg:justify-start">
+        <img src="logo.png" alt="" class="h-10 w-10 rounded-xl shadow-md" />
+        <span class="text-2xl font-extrabold tracking-tight">Zuno</span>
+        <span class="ml-1 rounded-full bg-ink px-2.5 py-0.5 text-xs font-semibold text-white">v2.0</span>
       </div>
-      <a href="#download" class="rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-black hover:shadow-lg">Get the app</a>
-    </nav>
-  </header>
 
-  <!-- Hero -->
-  <section class="relative overflow-hidden">
-    <div class="pointer-events-none absolute left-1/2 top-[420px] h-[720px] w-[720px] -translate-x-1/2 rounded-full bg-coral/20 blur-[120px]"></div>
-
-    <div class="relative mx-auto max-w-6xl px-5 pt-16 text-center md:pt-24">
-      <p class="rise mb-5 inline-flex items-center gap-2 rounded-full border border-ink/10 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[.14em] text-ink/60">
-        <span class="h-1.5 w-1.5 rounded-full bg-coral"></span> Free · No ads · Version 2.0
-      </p>
-      <h1 class="rise font-serif text-6xl leading-[1.02] tracking-tight md:text-8xl" style="animation-delay:.05s">
-        Music, without<br class="hidden sm:block" /> <em class="text-coral">the noise.</em>
+      <h1 class="rise mt-8 font-serif text-6xl leading-[1] tracking-tight sm:text-7xl" style="animation-delay:.06s">
+        Music, without<br /><em class="text-coral">the noise.</em>
       </h1>
-      <p class="rise mx-auto mt-6 max-w-xl text-lg text-ink/60" style="animation-delay:.12s">
-        Stream anything, download for offline, read synced lyrics. A player that looks as good as it sounds.
-      </p>
-      <div class="rise mt-9 flex flex-col items-center justify-center gap-4 sm:flex-row" style="animation-delay:.18s">
-        <a href="https://github.com/rajanprajapati1/Zuno----Fork-of-Harmony-for-Better-UI/releases/latest/download/Zuno-android.apk" class="group flex items-center gap-3 rounded-2xl bg-ink px-5 py-3 text-white transition hover:-translate-y-0.5 hover:shadow-xl">
-          <svg class="h-7 w-7" viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 12.4 20.3 10.8a1 1 0 0 0 0-1.7L6.4 1.2A1 1 0 0 0 5 2v20a1 1 0 0 0 1.4.9l13.9-7.9a1 1 0 0 0 0-1.7Z" opacity=".9"/></svg>
-          <span class="text-left leading-tight"><span class="block text-[11px] opacity-70">Download for</span><span class="text-base font-bold">Android</span></span>
-        </a>
-        <a href="#download" class="flex items-center gap-3 rounded-2xl border border-ink/15 bg-white px-5 py-3 transition hover:-translate-y-0.5 hover:border-ink/30">
-          <svg class="h-7 w-7" viewBox="0 0 24 24" fill="currentColor"><path d="M16.4 12.6c0-2.6 2.1-3.8 2.2-3.9-1.2-1.8-3.1-2-3.7-2-1.6-.2-3.1.9-3.9.9-.8 0-2-.9-3.4-.9-1.7 0-3.3 1-4.2 2.6-1.8 3.1-.5 7.7 1.3 10.2.9 1.2 1.9 2.6 3.2 2.6 1.3-.1 1.8-.8 3.3-.8s2 .8 3.4.8c1.4 0 2.3-1.3 3.1-2.5 1-1.4 1.4-2.8 1.4-2.9 0 0-2.7-1-2.7-4.1ZM13.9 4.9c.7-.9 1.2-2.1 1.1-3.3-1 0-2.3.7-3 1.6-.7.8-1.3 2-1.1 3.2 1.1.1 2.3-.6 3-1.5Z"/></svg>
-          <span class="text-left leading-tight"><span class="block text-[11px] text-ink/60">Coming soon to</span><span class="text-base font-bold">iPhone</span></span>
-        </a>
-      </div>
-      <p class="rise mt-5 text-sm text-ink/50" style="animation-delay:.24s">
-        Android · Windows · iPhone soon
+      <p class="rise mx-auto mt-5 max-w-md text-lg text-ink/60 lg:mx-0" style="animation-delay:.12s">
+        Stream anything, download anywhere, sing along with synced lyrics. Free, with no ads.
       </p>
 
-      <!-- Phone mockup: Zuno's player -->
-      <div id="player" class="rise relative mx-auto mt-16 w-[300px] md:w-[340px]" style="animation-delay:.3s">
-        <div class="rounded-[3rem] bg-ink p-3 shadow-[0_40px_120px_-30px_rgba(217,67,63,.55)]">
-          <div class="relative overflow-hidden rounded-[2.4rem] bg-gradient-to-b from-[#5a2b22] via-[#2a1512] to-[#120a09] px-5 pb-6 pt-4 text-left text-white">
-            <div class="mx-auto mb-4 h-6 w-28 rounded-full bg-black"></div>
-            <div class="flex items-center justify-between text-white/80">
-              <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
-              <div class="text-center">
-                <p class="text-[9px] font-semibold uppercase tracking-[.15em] text-white/60">Playing from playlist</p>
-                <p class="text-xs font-bold">Late Night Drive</p>
-              </div>
-              <span class="text-lg leading-none">•••</span>
-            </div>
-
-            <!-- cover -->
-            <div class="relative mx-auto mt-6 aspect-square w-full overflow-hidden bg-gradient-to-br from-[#ff9a5a] via-coral to-[#7a2340] shadow-2xl">
-              <div class="absolute -left-10 top-10 h-40 w-40 rounded-full bg-white/15 blur-xl"></div>
-              <div class="absolute inset-0 flex items-center justify-center">
-                <div class="flex h-24 items-center gap-1.5">
-                  <span class="bar h-16 w-1.5 rounded-full bg-white/90" style="animation-delay:-.1s"></span>
-                  <span class="bar h-24 w-1.5 rounded-full bg-white/90" style="animation-delay:-.5s"></span>
-                  <span class="bar h-12 w-1.5 rounded-full bg-white/90" style="animation-delay:-.3s"></span>
-                  <span class="bar h-20 w-1.5 rounded-full bg-white/90" style="animation-delay:-.8s"></span>
-                  <span class="bar h-14 w-1.5 rounded-full bg-white/90" style="animation-delay:-.2s"></span>
-                  <span class="bar h-24 w-1.5 rounded-full bg-white/90" style="animation-delay:-.6s"></span>
-                  <span class="bar h-10 w-1.5 rounded-full bg-white/90" style="animation-delay:-.4s"></span>
-                </div>
-              </div>
-            </div>
-
-            <div class="mt-5 flex items-center justify-between">
-              <div>
-                <p class="text-lg font-extrabold tracking-tight">Midnight City</p>
-                <p class="text-sm text-white/65">Neon Coast</p>
-              </div>
-              <svg class="h-6 w-6 text-coral" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7.5-4.6-9.6-9.3C.9 8.4 3 4.5 6.7 4.5c2.1 0 3.5 1.2 4.3 2.4.8-1.2 2.2-2.4 4.3-2.4 3.7 0 5.8 3.9 4.3 7.2C19.5 16.4 12 21 12 21Z"/></svg>
-            </div>
-
-            <div class="mt-4 h-1 rounded-full bg-white/20"><div class="progress h-1 rounded-full bg-white"></div></div>
-            <div class="mt-1.5 flex justify-between text-[10px] text-white/55"><span>1:24</span><span>3:52</span></div>
-
-            <div class="mt-3 flex items-center justify-between px-1">
-              <svg class="h-5 w-5 text-coral" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>
-              <svg class="h-7 w-7" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
-              <div class="flex h-14 w-14 items-center justify-center rounded-full bg-white text-ink"><svg class="h-7 w-7" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/></svg></div>
-              <svg class="h-7 w-7" viewBox="0 0 24 24" fill="currentColor"><path d="M16 6h2v12h-2zM6 18l8.5-6L6 6z"/></svg>
-              <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 1l4 4-4 4M3 11V9a4 4 0 0 1 4-4h14M7 23l-4-4 4-4M21 13v2a4 4 0 0 1-4 4H3"/></svg>
-            </div>
-
-            <div class="mt-5 flex items-center justify-between rounded-xl bg-[#4f7fa3] px-4 py-3">
-              <span class="text-sm font-extrabold">Lyrics</span>
-              <span class="flex h-7 w-7 items-center justify-center rounded-full bg-black/20 text-xs">⤢</span>
-            </div>
-          </div>
-        </div>
+      <!-- Downloads -->
+      <div class="rise mx-auto mt-8 grid max-w-md gap-3 sm:grid-cols-2 lg:mx-0" style="animation-delay:.18s">
+        <a href="https://github.com/rajanprajapati1/Zuno----Fork-of-Harmony-for-Better-UI/releases/latest/download/Zuno-android.apk"
+           class="group flex items-center gap-3 rounded-2xl bg-ink px-4 py-3 text-white transition hover:-translate-y-0.5 hover:shadow-xl">
+          <svg class="h-6 w-6 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M17.6 9.5 19.3 6.6a.4.4 0 0 0-.7-.4l-1.7 3a10.6 10.6 0 0 0-9.8 0l-1.7-3a.4.4 0 1 0-.7.4l1.7 2.9A9.8 9.8 0 0 0 1.5 17h21a9.8 9.8 0 0 0-4.9-7.5ZM7 14.2a.9.9 0 1 1 0-1.8.9.9 0 0 1 0 1.8Zm10 0a.9.9 0 1 1 0-1.8.9.9 0 0 1 0 1.8Z"/></svg>
+          <span class="text-left leading-tight"><span class="block text-[11px] opacity-60">Download for</span><span class="font-bold">Android</span></span>
+        </a>
+        <a href="https://github.com/rajanprajapati1/Zuno----Fork-of-Harmony-for-Better-UI/releases/latest/download/Zuno-windows.zip"
+           class="flex items-center gap-3 rounded-2xl bg-ink px-4 py-3 text-white transition hover:-translate-y-0.5 hover:shadow-xl">
+          <svg class="h-6 w-6 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M3 5.5 10.4 4.5v7H3zm8.4-1.1L21 3v8.5h-9.6zM3 12.5h7.4v7L3 18.5zm8.4 0H21V21l-9.6-1.4z"/></svg>
+          <span class="text-left leading-tight"><span class="block text-[11px] opacity-60">Download for</span><span class="font-bold">Windows</span></span>
+        </a>
+        <span class="flex cursor-not-allowed items-center gap-3 rounded-2xl border border-ink/15 px-4 py-3 text-ink/50">
+          <svg class="h-6 w-6 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M16.4 12.6c0-2.6 2.1-3.8 2.2-3.9-1.2-1.8-3.1-2-3.7-2-1.6-.2-3.1.9-3.9.9-.8 0-2-.9-3.4-.9-1.7 0-3.3 1-4.2 2.6-1.8 3.1-.5 7.7 1.3 10.2.9 1.2 1.9 2.6 3.2 2.6 1.3-.1 1.8-.8 3.3-.8s2 .8 3.4.8c1.4 0 2.3-1.3 3.1-2.5 1-1.4 1.4-2.8 1.4-2.9 0 0-2.7-1-2.7-4.1ZM13.9 4.9c.7-.9 1.2-2.1 1.1-3.3-1 0-2.3.7-3 1.6-.7.8-1.3 2-1.1 3.2 1.1.1 2.3-.6 3-1.5Z"/></svg>
+          <span class="text-left leading-tight"><span class="block text-[11px]">iPhone</span><span class="font-bold">Coming soon</span></span>
+        </span>
+        <a href="https://github.com/rajanprajapati1/Zuno----Fork-of-Harmony-for-Better-UI/releases/latest"
+           class="flex items-center gap-3 rounded-2xl border border-ink/15 bg-white/60 px-4 py-3 transition hover:-translate-y-0.5 hover:border-ink/40">
+          <svg class="h-6 w-6 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5a11.5 11.5 0 0 0-3.6 22.4c.6.1.8-.3.8-.6v-2c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.4 1 .1-.8.4-1.3.8-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.2 1.2a11 11 0 0 1 5.8 0c2.2-1.5 3.2-1.2 3.2-1.2.6 1.6.2 2.8.1 3.1.7.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A11.5 11.5 0 0 0 12 .5Z"/></svg>
+          <span class="text-left leading-tight"><span class="block text-[11px] text-ink/55">All files on</span><span class="font-bold">GitHub</span></span>
+        </a>
       </div>
-    </div>
-  </section>
+      <p class="rise mt-3 text-sm text-ink/50" style="animation-delay:.22s">
+        Smaller Android file for most phones:
+        <a class="font-semibold text-ink underline decoration-coral underline-offset-4 hover:text-coral"
+           href="https://github.com/rajanprajapati1/Zuno----Fork-of-Harmony-for-Better-UI/releases/latest/download/Zuno-android-arm64.apk">arm64 APK</a>
+      </p>
 
-  <!-- Features -->
-  <section id="features" class="mx-auto max-w-6xl px-5 py-28">
-    <div class="mx-auto max-w-2xl text-center">
-      <p class="text-xs font-bold uppercase tracking-[.18em] text-coral">The app</p>
-      <h2 class="mt-3 font-serif text-5xl leading-tight md:text-6xl">Everything you love about music. <em>Nothing you don't.</em></h2>
-    </div>
-    <div class="mt-16 grid gap-5 md:grid-cols-3">
-      <article class="group rounded-3xl bg-cream p-8 transition hover:-translate-y-1 hover:shadow-xl">
-        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-coral text-2xl text-white">♪</div>
-        <h3 class="mt-6 text-xl font-bold">Stream anything</h3>
-        <p class="mt-2 text-ink/60">Millions of songs, albums and artists. Search once, play instantly, no sign-up wall.</p>
-      </article>
-      <article class="group rounded-3xl bg-cream p-8 transition hover:-translate-y-1 hover:shadow-xl">
-        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-ink text-xl text-white">↓</div>
-        <h3 class="mt-6 text-xl font-bold">Offline, for real</h3>
-        <p class="mt-2 text-ink/60">Download songs and whole playlists. Resumable, fast, and they play without a signal.</p>
-      </article>
-      <article class="group rounded-3xl bg-cream p-8 transition hover:-translate-y-1 hover:shadow-xl">
-        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#4f7fa3] text-xl text-white">❝</div>
-        <h3 class="mt-6 text-xl font-bold">Synced lyrics</h3>
-        <p class="mt-2 text-ink/60">Sing along line by line. Tap the lyrics card and the words follow the beat.</p>
-      </article>
-      <article class="group rounded-3xl bg-cream p-8 transition hover:-translate-y-1 hover:shadow-xl">
-        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#7b3fe4] text-xl text-white">✦</div>
-        <h3 class="mt-6 text-xl font-bold">No ads. Ever.</h3>
-        <p class="mt-2 text-ink/60">No banners, no interruptions between songs, no tracking. Just your music.</p>
-      </article>
-      <article class="group rounded-3xl bg-cream p-8 transition hover:-translate-y-1 hover:shadow-xl">
-        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-coral-deep text-xl text-white">☾</div>
-        <h3 class="mt-6 text-xl font-bold">Sleep timer & queue</h3>
-        <p class="mt-2 text-ink/60">Drag to reorder, swipe to remove, and let the music fade out when you fall asleep.</p>
-      </article>
-      <article class="group rounded-3xl bg-cream p-8 transition hover:-translate-y-1 hover:shadow-xl">
-        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#1e3a8a] text-xl text-white">▶</div>
-        <h3 class="mt-6 text-xl font-bold">Movies & TV too</h3>
-        <p class="mt-2 text-ink/60">Switch modes in one tap for films, series and live TV, all in the same app.</p>
-      </article>
-    </div>
-  </section>
-
-  <!-- Quote band -->
-  <section class="bg-ink py-24 text-white">
-    <div class="mx-auto max-w-4xl px-5 text-center">
-      <p class="font-serif text-4xl leading-snug md:text-5xl">A music app that feels <em class="text-coral">calm</em> to open.</p>
-      <p class="mt-6 text-sm uppercase tracking-[.18em] text-white/50">That's the whole idea</p>
-    </div>
-  </section>
-
-  <!-- FAQ -->
-  <section id="faq" class="mx-auto max-w-3xl px-5 py-28">
-    <h2 class="text-center font-serif text-5xl">Questions, <em>answered.</em></h2>
-    <div class="mt-12 divide-y divide-ink/10 border-y border-ink/10">
-      <details class="group py-5">
-        <summary class="flex cursor-pointer list-none items-center justify-between text-lg font-semibold">Is Zuno really free?<span class="text-2xl text-ink/40 transition group-open:rotate-45">+</span></summary>
-        <p class="mt-3 text-ink/60">Yes. There is no subscription and no ads.</p>
-      </details>
-      <details class="group py-5">
-        <summary class="flex cursor-pointer list-none items-center justify-between text-lg font-semibold">Do I need an account?<span class="text-2xl text-ink/40 transition group-open:rotate-45">+</span></summary>
-        <p class="mt-3 text-ink/60">Yes. Sign in with the account your admin gave you. Your library, favourites and downloads stay on your device.</p>
-      </details>
-      <details class="group py-5">
-        <summary class="flex cursor-pointer list-none items-center justify-between text-lg font-semibold">Which devices are supported?<span class="text-2xl text-ink/40 transition group-open:rotate-45">+</span></summary>
-        <p class="mt-3 text-ink/60">Android and Windows today. iPhone is on the way.</p>
-      </details>
-    </div>
-  </section>
-
-  <!-- Download CTA -->
-  <section id="download" class="px-5 pb-24">
-    <div class="relative mx-auto max-w-6xl overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-coral to-coral-deep px-8 py-20 text-center text-white">
-      <div class="pointer-events-none absolute -right-20 -top-20 h-80 w-80 rounded-full bg-white/15 blur-3xl"></div>
-      <img src="logo.png" alt="Zuno" class="relative mx-auto h-20 w-20 rounded-3xl shadow-2xl" />
-      <h2 class="relative mt-8 font-serif text-5xl md:text-6xl">Press play on Zuno.</h2>
-      <p class="relative mx-auto mt-4 max-w-md text-white/85">Free download. Takes less than a minute to set up.</p>
-      <div class="relative mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
-        <a href="https://github.com/rajanprajapati1/Zuno----Fork-of-Harmony-for-Better-UI/releases/latest/download/Zuno-android.apk" class="rounded-full bg-white px-7 py-3.5 font-bold text-ink transition hover:-translate-y-0.5 hover:shadow-xl">Download for Android</a>
-        <a href="https://github.com/rajanprajapati1/Zuno----Fork-of-Harmony-for-Better-UI/releases/latest/download/Zuno-windows.zip" class="rounded-full border border-white/50 px-7 py-3.5 font-bold transition hover:bg-white/10">Windows app</a>
+      <!-- Login note -->
+      <div class="rise mx-auto mt-6 flex max-w-md items-start gap-3 rounded-2xl bg-coral/10 px-4 py-3 text-left lg:mx-0" style="animation-delay:.28s">
+        <span class="mt-0.5 text-lg">🔑</span>
+        <p class="text-sm leading-relaxed text-ink/75">
+          <span class="font-bold text-ink">Login required.</span>
+          Get the demo login from my <span class="font-semibold text-coral">Instagram story</span>.
+        </p>
       </div>
-    </div>
-  </section>
 
-  <footer class="border-t border-ink/10">
-    <div class="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-5 py-8 text-sm text-ink/55 sm:flex-row">
-      <div class="flex items-center gap-2"><img src="logo.png" alt="" class="h-6 w-6 rounded-md" /><span class="font-bold text-ink">Zuno</span></div>
-      <p>Made by <span class="text-coral">❤️</span> Rajan</p>
-      <p>© <span id="y"></span> Zuno</p>
-    </div>
-  </footer>
-  <script>document.getElementById('y').textContent = new Date().getFullYear();</script>
+      <p class="rise mt-8 text-sm text-ink/45" style="animation-delay:.34s">Made by <span class="text-coral">❤️</span> Rajan</p>
+    </section>
+
+    <!-- Right: real screenshots from the phone -->
+    <section class="rise relative mx-auto h-[520px] w-full max-w-[520px] sm:h-[600px]" style="animation-delay:.2s" aria-label="Zuno screenshots">
+      <!-- back left: player -->
+      <div class="absolute left-0 top-12 w-[40%] -rotate-6 sm:top-16">
+        <div class="rounded-[2rem] bg-ink p-1.5 shadow-2xl"><img src="screen-player.jpg" alt="Zuno player" class="w-full rounded-[1.6rem]" /></div>
+      </div>
+      <!-- back right: lyrics -->
+      <div class="absolute right-0 top-12 w-[40%] rotate-6 sm:top-16">
+        <div class="rounded-[2rem] bg-ink p-1.5 shadow-2xl"><img src="screen-lyrics.jpg" alt="Synced lyrics" class="w-full rounded-[1.6rem]" /></div>
+      </div>
+      <!-- front: home -->
+      <div class="float absolute left-1/2 top-0 w-[46%] -translate-x-1/2">
+        <div class="rounded-[2.3rem] bg-ink p-2 shadow-[0_40px_90px_-20px_rgba(217,67,63,.55)]"><img src="screen-home.jpg" alt="Zuno home" class="w-full rounded-[1.9rem]" /></div>
+      </div>
+    </section>
+  </main>
 </body>
 </html>
