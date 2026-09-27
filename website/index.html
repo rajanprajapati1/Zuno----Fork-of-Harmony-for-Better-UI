@@ -75,10 +75,20 @@
       <!-- Login note -->
       <div class="rise mx-auto mt-6 flex max-w-md items-start gap-3 rounded-2xl bg-coral/10 px-4 py-3 text-left lg:mx-0" style="animation-delay:.28s">
         <span class="mt-0.5 text-lg">🔑</span>
-        <p class="text-sm leading-relaxed text-ink/75">
-          <span class="font-bold text-ink">Login required.</span>
-          Get the demo login from my <span class="font-semibold text-coral">Instagram story</span>.
-        </p>
+        <div class="text-sm leading-relaxed text-ink/75">
+          <p><span class="font-bold text-ink">Login required.</span> Try it with the demo account:</p>
+          <div class="mt-2 flex flex-wrap gap-2">
+            <button type="button" data-copy="giveitatry@eg.com"
+                    class="copy rounded-lg bg-white px-2.5 py-1 font-mono text-[13px] text-ink shadow-sm ring-1 ring-ink/10 transition hover:ring-coral">
+              giveitatry@eg.com
+            </button>
+            <button type="button" data-copy="123456"
+                    class="copy rounded-lg bg-white px-2.5 py-1 font-mono text-[13px] text-ink shadow-sm ring-1 ring-ink/10 transition hover:ring-coral">
+              123456
+            </button>
+          </div>
+          <p class="mt-1.5 text-xs text-ink/45">Tap to copy</p>
+        </div>
       </div>
 
       <p class="rise mt-8 text-sm text-ink/45" style="animation-delay:.34s">Made by <span class="text-coral">❤️</span> Rajan</p>
@@ -100,5 +110,16 @@
       </div>
     </section>
   </main>
+  <script>
+    // tap-to-copy for the demo login
+    document.querySelectorAll('.copy').forEach((b) => {
+      b.addEventListener('click', async () => {
+        const text = b.dataset.copy;
+        try { await navigator.clipboard.writeText(text); } catch (e) {}
+        b.textContent = 'Copied ✓';
+        setTimeout(() => (b.textContent = text), 1200);
+      });
+    });
+  </script>
 </body>
 </html>
